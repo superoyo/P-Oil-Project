@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>FEFLDDB Town Hall #EarthDay – TV Display</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/styles.css" />
+<style>
+  /* ==== TV display page (16:9 fullscreen) ==== */
+  html, body {
+    height: 100%;
+    overflow: hidden;
+    background:
+      radial-gradient(1400px 800px at 80% 0%, #fff8d4 0%, transparent 60%),
+      radial-gradient(1200px 700px at 0% 100%, #d6f5e3 0%, transparent 60%),
+      linear-gradient(180deg, #eaf7ff 0%, #f8fff5 60%, #ffffff 100%);
+  }
+  body.tv-page {
+    margin: 0;
+    padding: 0;
+  }
+  body.tv-page::before { display: none; }
+
+  .tv-shell {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    overflow: hidden;
+    z-index: 2;
+  }
+
+  .tv-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 28px 56px;
+    z-index: 5;
+  }
+  .tv-brand {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+  }
+  .tv-brand .logo-big {
+    width: 72px; height: 72px;
+    border-radius: 18px;
+    background: white;
+    display: grid; place-items: center;
+    box-shadow: 0 10px 30px rgba(0,174,199,0.25);
+  }
+  .tv-brand .titles { line-height: 1.1; }
+  .tv-brand .titles h1 {
+    font-size: 30px;
+    font-weight: 800;
+    margin: 0 0 4px;
+    color: #1f2a37;
+  }
+  .tv-brand .titles h1 span { color: var(--ci-cyan); }
+  .tv-brand .titles .tag {
+    font-size: 16px;
+    color: var(--ink-mute);
+    font-weight: 500;
+  }
+
+  .tv-eyebrow {
+    background: linear-gradient(135deg, var(--ci-yellow) 0%, #ffe57a 100%);
+    color: #5a4500;
+    font-weight: 800;
+    padding: 12px 22px;
+    border-radius: 999px;
+    font-size: 16px;
+    letter-spacing: 2px;
+    box-shadow: 0 8px 24px rgba(255,211,5,0.45);
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .tv-eyebrow .dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--ci-cyan);
+    animation: pulse 1.6s ease-in-out infinite;
+  }
+
+  .tv-main {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 40px;
+    padding: 0 56px 16px;
+    align-items: center;
+    min-height: 0;
+  }
+
+  /* Tree side */
+  .tv-tree-wrap {
+    position: relative;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .tv-tree-stage {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 5 / 6;
+    max-height: 78vh;
+    border-radius: 36px;
+    overflow: hidden;
+    background: linear-gradient(180deg, #d6f1ff 0%, #eef9e8 55%, #ffffff 100%);
+    box-shadow: 0 30px 60px rgba(15,40,60,0.10), inset 0 0 0 1px rgba(0,174,199,0.08);
+  }
+  .tv-tree-stage svg {
+    position: absolute;
+    inset: 0;
+    width: 100%; height: 100%;
+  }
+
+  .tv-stage-tag {
+    position: absolute;
+    top: 28px;
+    left: 28px;
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(8px);
+    border-radius: 18px;
+    padding: 14px 22px;
+    box-shadow: 0 8px 24px rgba(0,174,199,0.15);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    z-index: 4;
+  }
+  .tv-stage-tag .emoji { font-size: 32px; }
+  .tv-stage-tag .label-l { font-size: 11px; font-weight: 700; letter-spacing: 1.5px; color: var(--ink-mute); text-transform: uppercase; }
+  .tv-stage-tag .label-v { font-size: 18px; font-weight: 700; color: var(--ink); margin-top: 2px; }
+
+  .tv-drops {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    pointer-events: none;
+  }
+
+  /* Right panel */
+  .tv-info {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    height: 100%;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    justify-content: center;
+  }
+
+  .tv-counter {
+    background: linear-gradient(135deg, #00aec7 0%, #19c8d3 50%, #ffd305 130%);
+    border-radius: 28px;
+    padding: 32px 36px;
+    color: white;
+    box-shadow: 0 24px 50px rgba(0, 174, 199, 0.30);
+    position: relative;
+    overflow: hidden;
+  }
+  .tv-counter::before {
+    content: "";
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(circle at 80% 20%, rgba(255,255,255,0.25) 0, transparent 40%),
+      radial-gradient(circle at 20% 80%, rgba(255,211,5,0.30) 0, transparent 40%);
+  }
+  .tv-counter > * { position: relative; }
+  .tv-counter .label {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    opacity: 0.85;
+  }
+  .tv-counter .num {
+    font-size: 96px;
+    font-weight: 800;
+    line-height: 1;
+    margin: 8px 0 4px;
+    text-shadow: 0 6px 20px rgba(0,0,0,0.15);
+  }
+  .tv-counter .num small {
+    font-size: 38px;
+    opacity: 0.7;
+    font-weight: 500;
+  }
+  .tv-counter .sub {
+    font-size: 16px;
+    opacity: 0.95;
+    font-weight: 500;
+  }
+  .tv-counter .progress-tv {
+    margin-top: 18px;
+    height: 14px;
+    background: rgba(255,255,255,0.25);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .tv-counter .progress-tv .fill {
+    height: 100%;
+    background: linear-gradient(90deg, #fff 0%, #ffd305 100%);
+    border-radius: 999px;
+    transition: width 1.5s cubic-bezier(.25,1.4,.45,1);
+  }
+
+  /* QR Card */
+  .tv-qr-card {
+    background: white;
+    border-radius: 28px;
+    padding: 28px 30px;
+    box-shadow: 0 24px 50px rgba(15,40,60,0.10), inset 0 0 0 1px rgba(0,174,199,0.10);
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 22px;
+    align-items: center;
+  }
+  .tv-qr-card .qr-box {
+    width: 200px;
+    height: 200px;
+    background: white;
+    border-radius: 18px;
+    padding: 12px;
+    border: 3px solid var(--ci-cyan);
+    box-shadow: 0 8px 20px rgba(0,174,199,0.18);
+    display: grid;
+    place-items: center;
+  }
+  .tv-qr-card .qr-box canvas,
+  .tv-qr-card .qr-box img {
+    width: 100% !important;
+    height: 100% !important;
+    border-radius: 6px;
+  }
+  .tv-qr-card .qr-text h3 {
+    font-size: 22px;
+    margin: 0 0 6px;
+    color: var(--ink);
+    font-weight: 800;
+  }
+  .tv-qr-card .qr-text p {
+    margin: 0 0 12px;
+    font-size: 14px;
+    color: var(--ink-soft);
+    line-height: 1.5;
+  }
+  .tv-qr-card .qr-url {
+    display: inline-block;
+    background: var(--ci-cyan-light);
+    color: var(--ci-cyan-dark);
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+    word-break: break-all;
+  }
+  .tv-qr-card .scan-hand {
+    display: inline-block;
+    margin-right: 6px;
+    animation: handBob 1.6s ease-in-out infinite;
+  }
+  @keyframes handBob {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-3px); }
+  }
+
+  /* Latest names ticker */
+  .tv-ticker {
+    background: white;
+    border-radius: 22px;
+    padding: 16px 24px;
+    box-shadow: 0 12px 28px rgba(15,40,60,0.06);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 60px;
+  }
+  .tv-ticker .label {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    color: var(--leaf-dark);
+    text-transform: uppercase;
+    white-space: nowrap;
+    background: #e8faf0;
+    padding: 6px 12px;
+    border-radius: 999px;
+  }
+  .tv-ticker .names {
+    flex: 1;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  .tv-ticker .names span {
+    display: inline-block;
+    margin-right: 22px;
+    font-size: 16px;
+    color: var(--ink);
+    font-weight: 500;
+  }
+  .tv-ticker .names span strong {
+    color: var(--ci-cyan-dark);
+    margin-right: 4px;
+  }
+
+  /* Footer */
+  .tv-footer {
+    padding: 12px 56px 22px;
+    text-align: center;
+    color: var(--ink-mute);
+    font-size: 14px;
+    font-weight: 500;
+  }
+  .tv-footer strong { color: var(--leaf-dark); }
+
+  /* Floating particles for TV */
+  .tv-petals {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+  }
+  .tv-petals span {
+    position: absolute;
+    top: -20px;
+    font-size: 26px;
+    opacity: 0.6;
+    animation: floatLeaf linear infinite;
+    filter: drop-shadow(0 6px 8px rgba(0,0,0,0.06));
+  }
+  .tv-petals span:nth-child(1) { left: 8%;  animation-duration: 22s; animation-delay: 0s;  font-size: 28px; }
+  .tv-petals span:nth-child(2) { left: 22%; animation-duration: 26s; animation-delay: 4s;  font-size: 22px; }
+  .tv-petals span:nth-child(3) { left: 38%; animation-duration: 28s; animation-delay: 8s; }
+  .tv-petals span:nth-child(4) { left: 55%; animation-duration: 24s; animation-delay: 2s; font-size: 26px; }
+  .tv-petals span:nth-child(5) { left: 70%; animation-duration: 30s; animation-delay: 6s; }
+  .tv-petals span:nth-child(6) { left: 86%; animation-duration: 25s; animation-delay: 10s; font-size: 24px; }
+  .tv-petals span:nth-child(7) { left: 95%; animation-duration: 27s; animation-delay: 1s; }
+
+  /* Pop animation for new register */
+  .tv-counter.pop .num {
+    animation: numPop 0.8s cubic-bezier(.25,1.6,.45,1);
+  }
+  @keyframes numPop {
+    0%   { transform: scale(1); }
+    30%  { transform: scale(1.15); color: #fff8d4; }
+    100% { transform: scale(1); }
+  }
+
+  @media (max-width: 1100px) {
+    .tv-main { grid-template-columns: 1fr; padding: 0 28px; }
+    .tv-counter .num { font-size: 64px; }
+    .tv-tree-stage { max-height: 50vh; }
+  }
+</style>
+</head>
+<body class="tv-page">
+
+<!-- Floating petals/leaves -->
+<div class="tv-petals" aria-hidden="true">
+  <span>🌿</span><span>🍃</span><span>🌸</span><span>🌱</span>
+  <span>🍃</span><span>🌿</span><span>🌸</span>
+</div>
+
+<div class="tv-shell">
+  <!-- Header -->
+  <header class="tv-header">
+    <div class="tv-brand">
+      <div class="logo-big">
+        <svg viewBox="0 0 64 64" width="56" height="56" aria-hidden="true">
+          <defs>
+            <linearGradient id="tv-lg" x1="0" x2="1" y1="1" y2="0">
+              <stop offset="0%" stop-color="#00aec7"/>
+              <stop offset="100%" stop-color="#ffd305"/>
+            </linearGradient>
+          </defs>
+          <circle cx="32" cy="32" r="30" fill="url(#tv-lg)"/>
+          <path d="M32 12 C24 22, 18 28, 18 38 a14 14 0 0 0 28 0 C46 28, 40 22, 32 12 Z" fill="#fff"/>
+          <path d="M32 18 C28 24, 24 30, 24 38" stroke="#00aec7" stroke-width="2" fill="none" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="titles">
+        <h1>Far East Fame Line <span>DDB</span></h1>
+        <div class="tag">Group Town Hall · Earth Day 2026 💚</div>
+      </div>
+    </div>
+    <div class="tv-eyebrow">
+      <span class="dot"></span> EARTH DAY · LIVE
+    </div>
+  </header>
+
+  <!-- Main -->
+  <main class="tv-main">
+    <!-- Tree side -->
+    <div class="tv-tree-wrap">
+      <div class="tree-stage tv-tree-stage" data-stage="0">
+        <!-- Stage tag -->
+        <div class="tv-stage-tag">
+          <div class="emoji" id="tv-stage-emoji">🌱</div>
+          <div>
+            <div class="label-l">ระยะการเติบโต</div>
+            <div class="label-v" id="tv-stage-label">รอรดน้ำ</div>
+          </div>
+        </div>
+
+        <!-- Cute tree SVG (same as index) -->
+        <svg class="tree-svg cute-tree" viewBox="0 0 400 480" aria-hidden="true">
+          <defs>
+            <radialGradient id="tv-sunGrad" cx="50%" cy="50%">
+              <stop offset="0%" stop-color="#fff5b8"/>
+              <stop offset="60%" stop-color="#ffd305"/>
+              <stop offset="100%" stop-color="#ffb800"/>
+            </radialGradient>
+            <linearGradient id="tv-trunkGrad" x1="0" x2="1" y1="0" y2="0">
+              <stop offset="0%" stop-color="#9a6a40"/>
+              <stop offset="50%" stop-color="#b78258"/>
+              <stop offset="100%" stop-color="#7a4f2b"/>
+            </linearGradient>
+            <radialGradient id="tv-foliageGrad" cx="40%" cy="35%">
+              <stop offset="0%" stop-color="#9aebbe"/>
+              <stop offset="60%" stop-color="#5fcd97"/>
+              <stop offset="100%" stop-color="#3aaf7a"/>
+            </radialGradient>
+            <radialGradient id="tv-hillGrad" cx="50%" cy="0%">
+              <stop offset="0%" stop-color="#c8ecd6"/>
+              <stop offset="100%" stop-color="#8fd6a8"/>
+            </radialGradient>
+          </defs>
+
+          <g class="sun-group">
+            <circle cx="340" cy="80" r="40" fill="url(#tv-sunGrad)" opacity="0.9"/>
+            <g stroke="#ffc107" stroke-width="2.5" stroke-linecap="round" opacity="0.55">
+              <line x1="340" y1="20" x2="340" y2="32"/>
+              <line x1="340" y1="128" x2="340" y2="140"/>
+              <line x1="280" y1="80" x2="292" y2="80"/>
+              <line x1="388" y1="80" x2="400" y2="80"/>
+              <line x1="297" y1="37" x2="306" y2="46"/>
+              <line x1="374" y1="114" x2="383" y2="123"/>
+              <line x1="297" y1="123" x2="306" y2="114"/>
+              <line x1="374" y1="46" x2="383" y2="37"/>
+            </g>
+          </g>
+
+          <g class="cloud" opacity="0.85">
+            <ellipse cx="80" cy="70" rx="34" ry="14" fill="#fff"/>
+            <ellipse cx="60" cy="76" rx="20" ry="11" fill="#fff"/>
+            <ellipse cx="100" cy="78" rx="22" ry="11" fill="#fff"/>
+          </g>
+
+          <path d="M0 420 Q120 370 240 400 Q360 380 400 410 L400 480 L0 480 Z" fill="url(#tv-hillGrad)"/>
+          <ellipse cx="200" cy="430" rx="170" ry="15" fill="#a8e0bf" opacity="0.6"/>
+          <ellipse cx="200" cy="432" rx="100" ry="9" fill="#000" opacity="0.07"/>
+
+          <g class="sprout">
+            <path d="M200 425 Q200 410 197 400 Q190 390 185 392" stroke="#3aaf7a" stroke-width="3" fill="none" stroke-linecap="round"/>
+            <ellipse cx="184" cy="392" rx="6" ry="4" fill="#5fcd97" transform="rotate(-25 184 392)"/>
+            <path d="M200 425 Q200 410 203 400 Q210 390 215 392" stroke="#3aaf7a" stroke-width="3" fill="none" stroke-linecap="round"/>
+            <ellipse cx="216" cy="392" rx="6" ry="4" fill="#5fcd97" transform="rotate(25 216 392)"/>
+          </g>
+
+          <g class="trunk-group">
+            <path class="trunk" d="M195 425 C188 365 210 320 200 240" stroke="url(#tv-trunkGrad)" stroke-width="22" stroke-linecap="round" fill="none"/>
+            <path d="M192 415 C186 365 204 325 196 250" stroke="#c89868" stroke-width="5" stroke-linecap="round" fill="none" opacity="0.55"/>
+            <ellipse cx="205" cy="370" rx="5" ry="7" fill="#5a3416" opacity="0.6"/>
+          </g>
+
+          <g class="foliage-group">
+            <ellipse cx="205" cy="220" rx="100" ry="90" fill="#2f9b6a" opacity="0.18"/>
+            <path d="M125 230 Q108 180 138 145 Q130 100 175 90 Q200 65 235 90 Q280 95 285 145 Q310 175 290 220 Q295 270 245 275 Q210 295 175 280 Q135 290 125 230 Z"
+              fill="url(#tv-foliageGrad)" stroke="#2f9b6a" stroke-width="3" stroke-linejoin="round"/>
+            <ellipse cx="170" cy="135" rx="18" ry="8" fill="#bdf3d2" opacity="0.55" transform="rotate(-15 170 135)"/>
+            <ellipse cx="225" cy="125" rx="14" ry="6" fill="#bdf3d2" opacity="0.45" transform="rotate(20 225 125)"/>
+            <circle cx="155" cy="200" r="3.5" fill="#2f9b6a" opacity="0.5"/>
+            <circle cx="245" cy="180" r="3" fill="#2f9b6a" opacity="0.5"/>
+            <circle cx="200" cy="240" r="3" fill="#2f9b6a" opacity="0.5"/>
+            <circle cx="270" cy="220" r="2.5" fill="#2f9b6a" opacity="0.5"/>
+          </g>
+
+          <g class="flowers-group">
+            <g class="flower" transform="translate(155 175)">
+              <circle cx="-7" cy="0" r="5" fill="#fff2b8"/><circle cx="7" cy="0" r="5" fill="#fff2b8"/>
+              <circle cx="0" cy="-7" r="5" fill="#fff2b8"/><circle cx="0" cy="7" r="5" fill="#fff2b8"/>
+              <circle r="4" fill="#ffd305"/>
+            </g>
+            <g class="flower" transform="translate(245 165)">
+              <circle cx="-6" cy="0" r="4.5" fill="#ffd0e2"/><circle cx="6" cy="0" r="4.5" fill="#ffd0e2"/>
+              <circle cx="0" cy="-6" r="4.5" fill="#ffd0e2"/><circle cx="0" cy="6" r="4.5" fill="#ffd0e2"/>
+              <circle r="3.5" fill="#ff9ec5"/>
+            </g>
+            <g class="flower" transform="translate(200 130)">
+              <circle cx="-6" cy="0" r="4.5" fill="#fff2b8"/><circle cx="6" cy="0" r="4.5" fill="#fff2b8"/>
+              <circle cx="0" cy="-6" r="4.5" fill="#fff2b8"/><circle cx="0" cy="6" r="4.5" fill="#fff2b8"/>
+              <circle r="3.5" fill="#ffd305"/>
+            </g>
+            <g class="flower" transform="translate(180 240)">
+              <circle cx="-5" cy="0" r="3.5" fill="#ffd0e2"/><circle cx="5" cy="0" r="3.5" fill="#ffd0e2"/>
+              <circle cx="0" cy="-5" r="3.5" fill="#ffd0e2"/><circle cx="0" cy="5" r="3.5" fill="#ffd0e2"/>
+              <circle r="3" fill="#ff9ec5"/>
+            </g>
+            <g class="flower" transform="translate(265 200)">
+              <circle cx="-5" cy="0" r="4" fill="#bae9f0"/><circle cx="5" cy="0" r="4" fill="#bae9f0"/>
+              <circle cx="0" cy="-5" r="4" fill="#bae9f0"/><circle cx="0" cy="5" r="4" fill="#bae9f0"/>
+              <circle r="3" fill="#00aec7"/>
+            </g>
+          </g>
+
+          <g class="mushrooms-group">
+            <g transform="translate(125 425)">
+              <ellipse cx="0" cy="0" rx="12" ry="9" fill="#ff6b6b"/>
+              <ellipse cx="-4" cy="-2" rx="2.5" ry="2" fill="#fff"/>
+              <ellipse cx="4" cy="-1" rx="2" ry="1.5" fill="#fff"/>
+              <rect x="-3" y="0" width="6" height="9" fill="#fff5dc" rx="2"/>
+            </g>
+            <g transform="translate(290 428)">
+              <ellipse cx="0" cy="0" rx="9" ry="7" fill="#ff8a5c"/>
+              <ellipse cx="-3" cy="-1" rx="1.5" ry="1.2" fill="#fff"/>
+              <ellipse cx="2" cy="-2" rx="1.5" ry="1" fill="#fff"/>
+              <rect x="-2" y="0" width="4" height="6" fill="#fff5dc" rx="1.5"/>
+            </g>
+          </g>
+
+          <g class="grass-group">
+            <path d="M70 432 L72 422 L74 432 L76 420 L78 432" stroke="#3aaf7a" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+            <path d="M340 433 L342 423 L344 433 L346 421 L348 433" stroke="#3aaf7a" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+            <path d="M160 432 L162 425 L164 432" stroke="#3aaf7a" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+          </g>
+
+          <g class="butterflies-group">
+            <g class="butterfly butterfly-1">
+              <ellipse cx="-5" cy="-2" rx="6" ry="4" fill="#ff9ec5" transform="rotate(-20 -5 -2)"/>
+              <ellipse cx="5" cy="-2" rx="6" ry="4" fill="#ff9ec5" transform="rotate(20 5 -2)"/>
+              <ellipse cx="-4" cy="2" rx="4" ry="3" fill="#ffd0e2" transform="rotate(20 -4 2)"/>
+              <ellipse cx="4" cy="2" rx="4" ry="3" fill="#ffd0e2" transform="rotate(-20 4 2)"/>
+              <ellipse cx="0" cy="0" rx="1.2" ry="4" fill="#5a3416"/>
+            </g>
+            <g class="butterfly butterfly-2">
+              <ellipse cx="-4" cy="-2" rx="5" ry="3.5" fill="#ffd305" transform="rotate(-20 -4 -2)"/>
+              <ellipse cx="4" cy="-2" rx="5" ry="3.5" fill="#ffd305" transform="rotate(20 4 -2)"/>
+              <ellipse cx="0" cy="0" rx="1" ry="3.5" fill="#5a3416"/>
+            </g>
+          </g>
+
+          <g class="sparkles-group">
+            <g class="sparkle" transform="translate(140 110)"><path d="M0 -5 L1 -1 L5 0 L1 1 L0 5 L-1 1 L-5 0 L-1 -1 Z" fill="#ffd305"/></g>
+            <g class="sparkle" transform="translate(295 105)"><path d="M0 -4 L0.8 -0.8 L4 0 L0.8 0.8 L0 4 L-0.8 0.8 L-4 0 L-0.8 -0.8 Z" fill="#fff"/></g>
+            <g class="sparkle" transform="translate(310 245)"><path d="M0 -3 L0.6 -0.6 L3 0 L0.6 0.6 L0 3 L-0.6 0.6 L-3 0 L-0.6 -0.6 Z" fill="#00aec7"/></g>
+          </g>
+        </svg>
+
+        <div class="tv-drops" id="tv-drops" aria-hidden="true"></div>
+      </div>
+    </div>
+
+    <!-- Right info panel -->
+    <div class="tv-info">
+      <div class="tv-counter" id="tv-counter">
+        <div class="label">🌱 มีคนรดน้ำต้นไม้แล้ว</div>
+        <div class="num"><span id="tv-count">0</span><small>/<span id="tv-total">10</span></small></div>
+        <div class="sub">ยิ่งคนลงทะเบียนเยอะ ต้นไม้ยิ่งเติบโต</div>
+        <div class="progress-tv">
+          <div class="fill" id="tv-progress" style="width:0%"></div>
+        </div>
+      </div>
+
+      <div class="tv-qr-card">
+        <div class="qr-box" id="tv-qr"></div>
+        <div class="qr-text">
+          <h3><span class="scan-hand">📱</span>สแกนเพื่อลงทะเบียน</h3>
+          <p>เปิดกล้องบนมือถือ สแกน QR Code นี้<br/>เพื่อร่วมรดน้ำต้นไม้ของพวกเรา</p>
+          <span class="qr-url" id="tv-url">…</span>
+        </div>
+      </div>
+
+      <div class="tv-ticker">
+        <div class="label">🆕 ลงทะเบียนล่าสุด</div>
+        <div class="names" id="tv-names">รอผู้ลงทะเบียนคนแรก…</div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="tv-footer">
+    💚 <strong>Together we grow</strong> · ทุกคนช่วยกันทำให้ต้นไม้ของพวกเราเติบโต · #FEFLDDB #EarthDay
+  </footer>
+</div>
+
+<!-- QR code library -->
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<script>
+(() => {
+  // QR target = current origin (registration page)
+  const url = window.location.origin + '/';
+  document.getElementById('tv-url').textContent = url;
+  new QRCode(document.getElementById('tv-qr'), {
+    text: url,
+    width: 200,
+    height: 200,
+    colorDark: '#0093a8',
+    colorLight: '#ffffff',
+    correctLevel: QRCode.CorrectLevel.H
+  });
+
+  const treeStage = document.querySelector('.tv-tree-stage');
+  const dropsEl = document.getElementById('tv-drops');
+  const countEl = document.getElementById('tv-count');
+  const totalEl = document.getElementById('tv-total');
+  const progressEl = document.getElementById('tv-progress');
+  const stageEmojiEl = document.getElementById('tv-stage-emoji');
+  const stageLabelEl = document.getElementById('tv-stage-label');
+  const namesEl = document.getElementById('tv-names');
+  const counterEl = document.getElementById('tv-counter');
+
+  let TOTAL = 10;
+  let lastCount = -1;
+  let recent = [];
+
+  function stageInfo(count) {
+    const pct = (count / TOTAL) * 100;
+    if (pct < 1)  return { stage: 0, emoji: '🌱', label: 'รอรดน้ำ' };
+    if (pct < 15) return { stage: 1, emoji: '🌱', label: 'เมล็ด' };
+    if (pct < 50) return { stage: 2, emoji: '🌿', label: 'ต้นกล้า' };
+    if (pct < 85) return { stage: 3, emoji: '🌳', label: 'ต้นไม้' };
+    return                { stage: 4, emoji: '🌸', label: 'เบ่งบาน' };
+  }
+
+  function spawnDrops() {
+    if (!dropsEl) return;
+    for (let i = 0; i < 12; i++) {
+      const d = document.createElement('span');
+      d.className = 'drop';
+      d.style.left = (15 + Math.random() * 70) + '%';
+      d.style.animationDelay = (Math.random() * 0.4) + 's';
+      d.style.animationDuration = (0.8 + Math.random() * 0.5) + 's';
+      dropsEl.appendChild(d);
+      setTimeout(() => d.remove(), 1700);
+    }
+  }
+
+  function renderNames(list) {
+    if (!list || list.length === 0) {
+      namesEl.textContent = 'รอผู้ลงทะเบียนคนแรก…';
+      return;
+    }
+    namesEl.innerHTML = list.slice(0, 8).map((r) =>
+      `<span><strong>${escapeHtml(r.name)}</strong>${r.department ? ' · ' + escapeHtml(r.department) : ''}</span>`
+    ).join('');
+  }
+
+  function escapeHtml(s) {
+    return String(s || '').replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  async function tick() {
+    try {
+      const r = await fetch('/api/stats');
+      if (!r.ok) return;
+      const data = await r.json();
+      TOTAL = data.total || 10;
+      totalEl.textContent = TOTAL;
+
+      const count = data.count;
+      const percent = Math.min(100, Math.round((count / TOTAL) * 100));
+      const info = stageInfo(count);
+
+      countEl.textContent = count;
+      progressEl.style.width = percent + '%';
+      treeStage.dataset.stage = info.stage;
+      stageEmojiEl.textContent = info.emoji;
+      stageLabelEl.textContent = info.label;
+
+      // Pop animation only on increase
+      if (lastCount >= 0 && count > lastCount) {
+        spawnDrops();
+        counterEl.classList.add('pop');
+        setTimeout(() => counterEl.classList.remove('pop'), 900);
+      }
+      lastCount = count;
+
+      // Fetch latest names (public — limited info via stats? we'll use public mini list)
+      // Use public-friendly fetch (server doesn't expose without admin), so derive from local cache instead
+    } catch (e) {}
+  }
+
+  // Track newly seen registrations via diff polling
+  async function tickNames() {
+    try {
+      const r = await fetch('/api/recent');
+      if (!r.ok) return;
+      const data = await r.json();
+      recent = data.recent || [];
+      renderNames(recent);
+    } catch (e) {}
+  }
+
+  tick();
+  tickNames();
+  setInterval(tick, 3000);
+  setInterval(tickNames, 5000);
+})();
+</script>
+</body>
+</html>

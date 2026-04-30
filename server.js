@@ -87,6 +87,15 @@ app.get('/api/stats', (req, res) => {
   });
 });
 
+app.get('/api/recent', (req, res) => {
+  const data = loadData();
+  const recent = data.registrations.slice(-10).reverse().map((r) => ({
+    name: r.name,
+    department: r.department,
+  }));
+  res.json({ recent });
+});
+
 app.get('/api/admin/registrations', requireAdmin, (req, res) => {
   const data = loadData();
   res.json({
@@ -169,9 +178,14 @@ app.get('/lucky-draw', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'lucky-draw.html'));
 });
 
+app.get('/tv', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'tv.html'));
+});
+
 app.listen(PORT, () => {
   console.log(`🌱 FEFLDDB Earth Day Town Hall server running on http://localhost:${PORT}`);
   console.log(`👉 Public:     http://localhost:${PORT}/`);
   console.log(`👉 Admin:      http://localhost:${PORT}/admin (key: ${ADMIN_KEY})`);
   console.log(`👉 Lucky Draw: http://localhost:${PORT}/lucky-draw`);
+  console.log(`👉 TV Display: http://localhost:${PORT}/tv`);
 });

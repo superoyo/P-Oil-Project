@@ -296,34 +296,113 @@ a:hover { text-decoration: underline; }
   z-index: 1;
 }
 
-/* Foliage stage transitions */
-.leaf-circle { transition: r 1.2s cubic-bezier(.25,1.4,.45,1); transform-origin: center; }
+/* ===== Cute tree stage transitions ===== */
+.cute-tree .foliage-group,
+.cute-tree .trunk-group,
+.cute-tree .flowers-group,
+.cute-tree .mushrooms-group,
+.cute-tree .butterflies-group,
+.cute-tree .sparkles-group,
+.cute-tree .sprout {
+  transition: transform 1.4s cubic-bezier(.25,1.4,.45,1), opacity 0.8s ease;
+  transform-origin: 200px 425px;
+}
+.cute-tree .foliage-group { transform-origin: 205px 220px; }
+.cute-tree .trunk-group   { transform-origin: 200px 425px; }
+.cute-tree .flowers-group { transform-origin: 205px 200px; }
+.cute-tree .butterflies-group { opacity: 0; transition: opacity 1s ease; }
+.cute-tree .sparkles-group { opacity: 0; transition: opacity 1s ease; }
+.cute-tree .flowers-group { opacity: 0; }
+.cute-tree .mushrooms-group { opacity: 0; transition: opacity 0.8s ease; }
+.cute-tree .grass-group { opacity: 0.6; }
 
-.tree-stage[data-stage="0"] .leaf-circle { r: 0; }
-.tree-stage[data-stage="1"] .l4 { r: 14; }
-.tree-stage[data-stage="1"] .l1 { r: 8; }
+/* Stage 0 — empty land + sprout */
+.tree-stage[data-stage="0"] .cute-tree .foliage-group { transform: scale(0); }
+.tree-stage[data-stage="0"] .cute-tree .trunk-group   { transform: scaleY(0); }
+.tree-stage[data-stage="0"] .cute-tree .sprout        { opacity: 1; transform: scale(1); }
 
-.tree-stage[data-stage="2"] .l1 { r: 22; }
-.tree-stage[data-stage="2"] .l2 { r: 16; }
-.tree-stage[data-stage="2"] .l3 { r: 16; }
-.tree-stage[data-stage="2"] .l4 { r: 24; }
+/* Stage 1 — small sapling */
+.tree-stage[data-stage="1"] .cute-tree .foliage-group { transform: scale(0.30) translateY(280px); }
+.tree-stage[data-stage="1"] .cute-tree .trunk-group   { transform: scaleY(0.42); transform-origin: 200px 425px; }
+.tree-stage[data-stage="1"] .cute-tree .sprout        { opacity: 0; transform: scale(0.7); }
 
-.tree-stage[data-stage="3"] .l1 { r: 30; }
-.tree-stage[data-stage="3"] .l2 { r: 26; }
-.tree-stage[data-stage="3"] .l3 { r: 26; }
-.tree-stage[data-stage="3"] .l4 { r: 32; }
-.tree-stage[data-stage="3"] .l5 { r: 20; }
-.tree-stage[data-stage="3"] .l6 { r: 20; }
-.tree-stage[data-stage="3"] #branches { opacity: 1; transition: opacity 0.8s ease; }
+/* Stage 2 — sapling */
+.tree-stage[data-stage="2"] .cute-tree .foliage-group { transform: scale(0.55) translateY(150px); }
+.tree-stage[data-stage="2"] .cute-tree .trunk-group   { transform: scaleY(0.65); transform-origin: 200px 425px; }
+.tree-stage[data-stage="2"] .cute-tree .sprout        { opacity: 0; }
+.tree-stage[data-stage="2"] .cute-tree .mushrooms-group { opacity: 1; }
 
-.tree-stage[data-stage="4"] .l1 { r: 36; }
-.tree-stage[data-stage="4"] .l2 { r: 32; }
-.tree-stage[data-stage="4"] .l3 { r: 32; }
-.tree-stage[data-stage="4"] .l4 { r: 38; }
-.tree-stage[data-stage="4"] .l5 { r: 26; }
-.tree-stage[data-stage="4"] .l6 { r: 26; }
-.tree-stage[data-stage="4"] #branches { opacity: 1; transition: opacity 0.8s ease; }
-.tree-stage[data-stage="4"] #flowers { opacity: 1; transition: opacity 1s ease 0.4s; }
+/* Stage 3 — full tree */
+.tree-stage[data-stage="3"] .cute-tree .foliage-group { transform: scale(0.85) translateY(35px); }
+.tree-stage[data-stage="3"] .cute-tree .trunk-group   { transform: scaleY(0.9); transform-origin: 200px 425px; }
+.tree-stage[data-stage="3"] .cute-tree .sprout        { opacity: 0; }
+.tree-stage[data-stage="3"] .cute-tree .mushrooms-group { opacity: 1; }
+
+/* Stage 4 — bloom */
+.tree-stage[data-stage="4"] .cute-tree .foliage-group { transform: scale(1) translateY(0); }
+.tree-stage[data-stage="4"] .cute-tree .trunk-group   { transform: scaleY(1); transform-origin: 200px 425px; }
+.tree-stage[data-stage="4"] .cute-tree .sprout        { opacity: 0; }
+.tree-stage[data-stage="4"] .cute-tree .flowers-group { opacity: 1; transition-delay: 0.3s; }
+.tree-stage[data-stage="4"] .cute-tree .butterflies-group { opacity: 1; transition-delay: 0.5s; }
+.tree-stage[data-stage="4"] .cute-tree .sparkles-group { opacity: 1; transition-delay: 0.7s; }
+.tree-stage[data-stage="4"] .cute-tree .mushrooms-group { opacity: 1; }
+
+/* Sun gentle pulse */
+.cute-tree .sun-group { transform-origin: 340px 80px; animation: sunPulse 4s ease-in-out infinite; }
+@keyframes sunPulse {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.05); }
+}
+
+/* Cloud drift */
+.cute-tree .cloud { animation: cloudDrift 18s ease-in-out infinite; }
+@keyframes cloudDrift {
+  0%, 100% { transform: translateX(0); }
+  50%      { transform: translateX(20px); }
+}
+
+/* Butterfly flutter */
+.cute-tree .butterfly-1 {
+  animation: butterfly1 6s ease-in-out infinite;
+}
+.cute-tree .butterfly-2 {
+  animation: butterfly2 7s ease-in-out infinite;
+}
+@keyframes butterfly1 {
+  0%   { transform: translate(310px, 170px) rotate(0deg); }
+  25%  { transform: translate(280px, 150px) rotate(-15deg); }
+  50%  { transform: translate(310px, 130px) rotate(0deg); }
+  75%  { transform: translate(335px, 160px) rotate(15deg); }
+  100% { transform: translate(310px, 170px) rotate(0deg); }
+}
+@keyframes butterfly2 {
+  0%   { transform: translate(95px, 200px) rotate(0deg); }
+  33%  { transform: translate(115px, 175px) rotate(-10deg); }
+  66%  { transform: translate(75px, 165px) rotate(10deg); }
+  100% { transform: translate(95px, 200px) rotate(0deg); }
+}
+
+/* Sparkle twinkle */
+.cute-tree .sparkle {
+  animation: twinkle 2s ease-in-out infinite;
+  transform-origin: center;
+}
+.cute-tree .sparkle:nth-child(1) { animation-delay: 0s; }
+.cute-tree .sparkle:nth-child(2) { animation-delay: 0.7s; }
+.cute-tree .sparkle:nth-child(3) { animation-delay: 1.4s; }
+@keyframes twinkle {
+  0%, 100% { opacity: 0.3; transform: scale(0.6); }
+  50%      { opacity: 1;   transform: scale(1.2); }
+}
+
+/* Tree shake on register — also gentle wiggle when bloomed */
+.tree-stage[data-stage="4"] .cute-tree .foliage-group {
+  animation: foliageBob 3s ease-in-out infinite;
+}
+@keyframes foliageBob {
+  0%, 100% { transform: scale(1) translateY(0); }
+  50%      { transform: scale(1.02) translateY(-3px); }
+}
 
 /* Drops animation */
 .drops {

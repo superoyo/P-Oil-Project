@@ -87,38 +87,190 @@
       <div class="tree-stage">
         <!-- Sky background -->
         <div class="tree-sky"></div>
-        <!-- Tree SVG -->
-        <svg id="tree-svg" class="tree-svg" viewBox="0 0 300 360" aria-hidden="true">
-          <!-- Ground -->
-          <ellipse cx="150" cy="345" rx="130" ry="14" fill="#dff3ec"/>
-          <ellipse cx="150" cy="343" rx="100" ry="9" fill="#bce6d3"/>
+        <!-- Cute Tree SVG -->
+        <svg id="tree-svg" class="tree-svg cute-tree" viewBox="0 0 400 480" aria-hidden="true">
+          <defs>
+            <radialGradient id="sunGrad" cx="50%" cy="50%">
+              <stop offset="0%" stop-color="#fff5b8"/>
+              <stop offset="60%" stop-color="#ffd305"/>
+              <stop offset="100%" stop-color="#ffb800"/>
+            </radialGradient>
+            <linearGradient id="trunkGrad" x1="0" x2="1" y1="0" y2="0">
+              <stop offset="0%" stop-color="#9a6a40"/>
+              <stop offset="50%" stop-color="#b78258"/>
+              <stop offset="100%" stop-color="#7a4f2b"/>
+            </linearGradient>
+            <radialGradient id="foliageGrad" cx="40%" cy="35%">
+              <stop offset="0%" stop-color="#9aebbe"/>
+              <stop offset="60%" stop-color="#5fcd97"/>
+              <stop offset="100%" stop-color="#3aaf7a"/>
+            </radialGradient>
+            <radialGradient id="hillGrad" cx="50%" cy="0%">
+              <stop offset="0%" stop-color="#c8ecd6"/>
+              <stop offset="100%" stop-color="#8fd6a8"/>
+            </radialGradient>
+          </defs>
 
-          <!-- Trunk -->
-          <path id="trunk" d="M145 340 Q148 300 150 270 Q152 240 150 210" stroke="#7a4f2b" stroke-width="10" stroke-linecap="round" fill="none"/>
-
-          <!-- Branches (initially hidden, revealed by stage) -->
-          <g id="branches" opacity="0">
-            <path d="M150 240 Q130 220 110 215" stroke="#7a4f2b" stroke-width="5" fill="none" stroke-linecap="round"/>
-            <path d="M150 220 Q175 205 195 200" stroke="#7a4f2b" stroke-width="5" fill="none" stroke-linecap="round"/>
+          <!-- Sun -->
+          <g class="sun-group">
+            <circle cx="340" cy="80" r="40" fill="url(#sunGrad)" opacity="0.9"/>
+            <g stroke="#ffc107" stroke-width="2.5" stroke-linecap="round" opacity="0.55">
+              <line x1="340" y1="20" x2="340" y2="32"/>
+              <line x1="340" y1="128" x2="340" y2="140"/>
+              <line x1="280" y1="80" x2="292" y2="80"/>
+              <line x1="388" y1="80" x2="400" y2="80"/>
+              <line x1="297" y1="37" x2="306" y2="46"/>
+              <line x1="374" y1="114" x2="383" y2="123"/>
+              <line x1="297" y1="123" x2="306" y2="114"/>
+              <line x1="374" y1="46" x2="383" y2="37"/>
+            </g>
           </g>
 
-          <!-- Foliage clusters; scale up via CSS by stage -->
-          <g id="foliage">
-            <circle class="leaf-circle l1" cx="150" cy="200" r="0" fill="#3aaf7a"/>
-            <circle class="leaf-circle l2" cx="120" cy="195" r="0" fill="#52c08c"/>
-            <circle class="leaf-circle l3" cx="180" cy="190" r="0" fill="#2f9b6a"/>
-            <circle class="leaf-circle l4" cx="150" cy="170" r="0" fill="#5fcd97"/>
-            <circle class="leaf-circle l5" cx="135" cy="160" r="0" fill="#3aaf7a"/>
-            <circle class="leaf-circle l6" cx="170" cy="160" r="0" fill="#2f9b6a"/>
+          <!-- Cloud -->
+          <g class="cloud" opacity="0.85">
+            <ellipse cx="80" cy="70" rx="34" ry="14" fill="#fff"/>
+            <ellipse cx="60" cy="76" rx="20" ry="11" fill="#fff"/>
+            <ellipse cx="100" cy="78" rx="22" ry="11" fill="#fff"/>
           </g>
 
-          <!-- Flowers -->
-          <g id="flowers" opacity="0">
-            <circle cx="135" cy="180" r="4" fill="#ffd305"/>
-            <circle cx="165" cy="175" r="4" fill="#ffd305"/>
-            <circle cx="150" cy="155" r="4" fill="#ffd305"/>
-            <circle cx="125" cy="175" r="3" fill="#ff9ec5"/>
-            <circle cx="180" cy="180" r="3" fill="#ff9ec5"/>
+          <!-- Hills (back) -->
+          <path d="M0 420 Q120 370 240 400 Q360 380 400 410 L400 480 L0 480 Z" fill="url(#hillGrad)"/>
+
+          <!-- Ground / shadow -->
+          <ellipse cx="200" cy="430" rx="170" ry="15" fill="#a8e0bf" opacity="0.6"/>
+          <ellipse cx="200" cy="432" rx="100" ry="9" fill="#000" opacity="0.07"/>
+
+          <!-- Sprout (only visible at stage 0/1 small) -->
+          <g class="sprout">
+            <path d="M200 425 Q200 410 197 400 Q190 390 185 392" stroke="#3aaf7a" stroke-width="3" fill="none" stroke-linecap="round"/>
+            <ellipse cx="184" cy="392" rx="6" ry="4" fill="#5fcd97" transform="rotate(-25 184 392)"/>
+            <path d="M200 425 Q200 410 203 400 Q210 390 215 392" stroke="#3aaf7a" stroke-width="3" fill="none" stroke-linecap="round"/>
+            <ellipse cx="216" cy="392" rx="6" ry="4" fill="#5fcd97" transform="rotate(25 216 392)"/>
+          </g>
+
+          <!-- Trunk (curved, always present, scales with stage) -->
+          <g class="trunk-group">
+            <path class="trunk" d="M195 425 C188 365 210 320 200 240" stroke="url(#trunkGrad)" stroke-width="22" stroke-linecap="round" fill="none"/>
+            <!-- Trunk highlight -->
+            <path d="M192 415 C186 365 204 325 196 250" stroke="#c89868" stroke-width="5" stroke-linecap="round" fill="none" opacity="0.55"/>
+            <!-- Tree hole -->
+            <ellipse class="trunk-detail" cx="205" cy="370" rx="5" ry="7" fill="#5a3416" opacity="0.6"/>
+          </g>
+
+          <!-- Foliage: bumpy puffy shape -->
+          <g class="foliage-group">
+            <!-- Soft shadow under foliage -->
+            <ellipse class="foliage-shadow" cx="205" cy="220" rx="100" ry="90" fill="#2f9b6a" opacity="0.18"/>
+            <!-- Main bumpy foliage -->
+            <path class="foliage-main" d="
+              M125 230
+              Q108 180 138 145
+              Q130 100 175 90
+              Q200 65 235 90
+              Q280 95 285 145
+              Q310 175 290 220
+              Q295 270 245 275
+              Q210 295 175 280
+              Q135 290 125 230 Z"
+              fill="url(#foliageGrad)" stroke="#2f9b6a" stroke-width="3" stroke-linejoin="round"/>
+            <!-- Highlight bumps -->
+            <ellipse class="foliage-hl" cx="170" cy="135" rx="18" ry="8" fill="#bdf3d2" opacity="0.55" transform="rotate(-15 170 135)"/>
+            <ellipse class="foliage-hl" cx="225" cy="125" rx="14" ry="6" fill="#bdf3d2" opacity="0.45" transform="rotate(20 225 125)"/>
+            <!-- Small detail leaves -->
+            <circle class="foliage-spot" cx="155" cy="200" r="3.5" fill="#2f9b6a" opacity="0.5"/>
+            <circle class="foliage-spot" cx="245" cy="180" r="3" fill="#2f9b6a" opacity="0.5"/>
+            <circle class="foliage-spot" cx="200" cy="240" r="3" fill="#2f9b6a" opacity="0.5"/>
+            <circle class="foliage-spot" cx="270" cy="220" r="2.5" fill="#2f9b6a" opacity="0.5"/>
+          </g>
+
+          <!-- Flowers on tree (bloom stage) -->
+          <g class="flowers-group">
+            <!-- Yellow flower 1 -->
+            <g class="flower" transform="translate(155 175)">
+              <circle cx="-7" cy="0" r="5" fill="#fff2b8"/>
+              <circle cx="7" cy="0" r="5" fill="#fff2b8"/>
+              <circle cx="0" cy="-7" r="5" fill="#fff2b8"/>
+              <circle cx="0" cy="7" r="5" fill="#fff2b8"/>
+              <circle r="4" fill="#ffd305"/>
+            </g>
+            <!-- Pink flower -->
+            <g class="flower" transform="translate(245 165)">
+              <circle cx="-6" cy="0" r="4.5" fill="#ffd0e2"/>
+              <circle cx="6" cy="0" r="4.5" fill="#ffd0e2"/>
+              <circle cx="0" cy="-6" r="4.5" fill="#ffd0e2"/>
+              <circle cx="0" cy="6" r="4.5" fill="#ffd0e2"/>
+              <circle r="3.5" fill="#ff9ec5"/>
+            </g>
+            <!-- Yellow flower 2 -->
+            <g class="flower" transform="translate(200 130)">
+              <circle cx="-6" cy="0" r="4.5" fill="#fff2b8"/>
+              <circle cx="6" cy="0" r="4.5" fill="#fff2b8"/>
+              <circle cx="0" cy="-6" r="4.5" fill="#fff2b8"/>
+              <circle cx="0" cy="6" r="4.5" fill="#fff2b8"/>
+              <circle r="3.5" fill="#ffd305"/>
+            </g>
+            <!-- Pink small -->
+            <g class="flower" transform="translate(180 240)">
+              <circle cx="-5" cy="0" r="3.5" fill="#ffd0e2"/>
+              <circle cx="5" cy="0" r="3.5" fill="#ffd0e2"/>
+              <circle cx="0" cy="-5" r="3.5" fill="#ffd0e2"/>
+              <circle cx="0" cy="5" r="3.5" fill="#ffd0e2"/>
+              <circle r="3" fill="#ff9ec5"/>
+            </g>
+            <!-- Cyan accent -->
+            <g class="flower" transform="translate(265 200)">
+              <circle cx="-5" cy="0" r="4" fill="#bae9f0"/>
+              <circle cx="5" cy="0" r="4" fill="#bae9f0"/>
+              <circle cx="0" cy="-5" r="4" fill="#bae9f0"/>
+              <circle cx="0" cy="5" r="4" fill="#bae9f0"/>
+              <circle r="3" fill="#00aec7"/>
+            </g>
+          </g>
+
+          <!-- Mushrooms at base (visible from stage 2) -->
+          <g class="mushrooms-group">
+            <g class="mushroom" transform="translate(125 425)">
+              <ellipse cx="0" cy="0" rx="12" ry="9" fill="#ff6b6b"/>
+              <ellipse cx="-4" cy="-2" rx="2.5" ry="2" fill="#fff"/>
+              <ellipse cx="4" cy="-1" rx="2" ry="1.5" fill="#fff"/>
+              <rect x="-3" y="0" width="6" height="9" fill="#fff5dc" rx="2"/>
+            </g>
+            <g class="mushroom" transform="translate(290 428)">
+              <ellipse cx="0" cy="0" rx="9" ry="7" fill="#ff8a5c"/>
+              <ellipse cx="-3" cy="-1" rx="1.5" ry="1.2" fill="#fff"/>
+              <ellipse cx="2" cy="-2" rx="1.5" ry="1" fill="#fff"/>
+              <rect x="-2" y="0" width="4" height="6" fill="#fff5dc" rx="1.5"/>
+            </g>
+          </g>
+
+          <!-- Grass tufts -->
+          <g class="grass-group">
+            <path d="M70 432 L72 422 L74 432 L76 420 L78 432" stroke="#3aaf7a" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+            <path d="M340 433 L342 423 L344 433 L346 421 L348 433" stroke="#3aaf7a" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+            <path d="M160 432 L162 425 L164 432" stroke="#3aaf7a" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+          </g>
+
+          <!-- Butterflies (bloom stage) -->
+          <g class="butterflies-group">
+            <g class="butterfly butterfly-1" transform="translate(310 170)">
+              <ellipse cx="-5" cy="-2" rx="6" ry="4" fill="#ff9ec5" transform="rotate(-20 -5 -2)"/>
+              <ellipse cx="5" cy="-2" rx="6" ry="4" fill="#ff9ec5" transform="rotate(20 5 -2)"/>
+              <ellipse cx="-4" cy="2" rx="4" ry="3" fill="#ffd0e2" transform="rotate(20 -4 2)"/>
+              <ellipse cx="4" cy="2" rx="4" ry="3" fill="#ffd0e2" transform="rotate(-20 4 2)"/>
+              <ellipse cx="0" cy="0" rx="1.2" ry="4" fill="#5a3416"/>
+            </g>
+            <g class="butterfly butterfly-2" transform="translate(95 200)">
+              <ellipse cx="-4" cy="-2" rx="5" ry="3.5" fill="#ffd305" transform="rotate(-20 -4 -2)"/>
+              <ellipse cx="4" cy="-2" rx="5" ry="3.5" fill="#ffd305" transform="rotate(20 4 -2)"/>
+              <ellipse cx="0" cy="0" rx="1" ry="3.5" fill="#5a3416"/>
+            </g>
+          </g>
+
+          <!-- Sparkles (bloom stage) -->
+          <g class="sparkles-group">
+            <g class="sparkle" transform="translate(140 110)"><path d="M0 -5 L1 -1 L5 0 L1 1 L0 5 L-1 1 L-5 0 L-1 -1 Z" fill="#ffd305"/></g>
+            <g class="sparkle" transform="translate(295 105)"><path d="M0 -4 L0.8 -0.8 L4 0 L0.8 0.8 L0 4 L-0.8 0.8 L-4 0 L-0.8 -0.8 Z" fill="#fff"/></g>
+            <g class="sparkle" transform="translate(310 245)"><path d="M0 -3 L0.6 -0.6 L3 0 L0.6 0.6 L0 3 L-0.6 0.6 L-3 0 L-0.6 -0.6 Z" fill="#00aec7"/></g>
           </g>
         </svg>
 
