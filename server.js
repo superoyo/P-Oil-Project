@@ -1,10 +1,9 @@
 const express = require('express');
-const fs = require('fs');
 const path = require('path');
+const db = require('./db');
 
 const app = express();
 const PORT = process.env.PORT || 4242;
-const DATA_FILE = path.join(__dirname, 'registrations.json');
 const ADMIN_KEY = process.env.ADMIN_KEY || 'feflddb2026';
 const DEFAULT_TOTAL = 10;
 const DEFAULT_OFFSET = 0;
@@ -12,41 +11,18 @@ const DEFAULT_OFFSET = 0;
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-function loadData() {
-  const fallback = {
-    registrations: [],
-    winners: [],
-    settings: { baseOffset: DEFAULT_OFFSET, totalTarget: DEFAULT_TOTAL },
-  };
-  try {
-    if (!fs.existsSync(DATA_FILE)) return fallback;
-    const raw = fs.readFileSync(DATA_FILE, 'utf-8');
-    const parsed = JSON.parse(raw || '{}');
-    const settings = parsed.settings && typeof parsed.settings === 'object' ? parsed.settings : {};
-    return {
-      registrations: Array.isArray(parsed.registrations) ? parsed.registrations : [],
-      winners: Array.isArray(parsed.winners) ? parsed.winners : [],
-      settings: {
-        baseOffset: Number.isFinite(settings.baseOffset) ? settings.baseOffset : DEFAULT_OFFSET,
-        totalTarget: Number.isFinite(settings.totalTarget) && settings.totalTarget > 0
-          ? settings.totalTarget : DEFAULT_TOTAL,
-      },
-    };
-  } catch (e) {
-    return fallback;
-  }
-}
-
 function buildStats(data) {
   const registrationCount = data.registrations.length;
   const { baseOffset, totalTarget } = data.settings;
   const displayCount = registrationCount + baseOffset;
   const percent = Math.min(100, Math.round((displayCount / totalTarget) * 100));
-  return { count: displayCount, registrationCount, baseOffset, total: totalTarget, percent };
-}
-
-function saveData(data) {
-  fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
+  return {
+    count: displayCount,
+    registrationCount,
+    baseOffset,
+    total: totalTarget,
+    percent,
+  };
 }
 
 function normalizePhone(phone) {
@@ -61,7 +37,13 @@ function requireAdmin(req, res, next) {
   next();
 }
 
-app.post('/api/register', (req, res) => {
+// Wrap async handlers so any rejection sends a 500
+const wrap = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
+
+// ────────────────────────────────────────
+// Public routes
+// ────────────────────────────────────────
+app.post('/api/register', wrap(async (req, res) => {
   const name = String(req.body.name || '').trim();
   const phoneRaw = String(req.body.phone || '').trim();
   const department = String(req.body.department || '').trim();
@@ -74,9 +56,8 @@ app.post('/api/register', (req, res) => {
     return res.status(400).json({ error: 'กรุณากรอกเบอร์โทรให้ถูกต้อง' });
   }
 
-  const data = loadData();
-  const exists = data.registrations.find((r) => r.phone === phone);
-  if (exists) {
+  const existing = await db.findByPhone(phone);
+  if (existing) {
     return res.status(409).json({ error: 'เบอร์โทรนี้ลงทะเบียนแล้ว' });
   }
 
@@ -87,33 +68,32 @@ app.post('/api/register', (req, res) => {
     department,
     registeredAt: new Date().toISOString(),
   };
-  data.registrations.push(entry);
-  saveData(data);
+  await db.addRegistration(entry);
 
+  const data = await db.getAll();
   const stats = buildStats(data);
-  res.json({
-    ok: true,
-    ...stats,
-    entry: { id: entry.id, name: entry.name },
-  });
-});
+  res.json({ ok: true, ...stats, entry: { id: entry.id, name: entry.name } });
+}));
 
-app.get('/api/stats', (req, res) => {
-  const data = loadData();
+app.get('/api/stats', wrap(async (req, res) => {
+  const data = await db.getAll();
   res.json(buildStats(data));
-});
+}));
 
-app.get('/api/recent', (req, res) => {
-  const data = loadData();
+app.get('/api/recent', wrap(async (req, res) => {
+  const data = await db.getAll();
   const recent = data.registrations.slice(-10).reverse().map((r) => ({
     name: r.name,
     department: r.department,
   }));
   res.json({ recent });
-});
+}));
 
-app.get('/api/admin/registrations', requireAdmin, (req, res) => {
-  const data = loadData();
+// ────────────────────────────────────────
+// Admin routes
+// ────────────────────────────────────────
+app.get('/api/admin/registrations', requireAdmin, wrap(async (req, res) => {
+  const data = await db.getAll();
   const stats = buildStats(data);
   res.json({
     ...stats,
@@ -121,44 +101,42 @@ app.get('/api/admin/registrations', requireAdmin, (req, res) => {
     winners: data.winners,
     settings: data.settings,
   });
-});
+}));
 
-app.get('/api/admin/settings', requireAdmin, (req, res) => {
-  const data = loadData();
+app.delete('/api/admin/registrations/:id', requireAdmin, wrap(async (req, res) => {
+  const removed = await db.removeRegistration(req.params.id);
+  if (!removed) return res.status(404).json({ error: 'ไม่พบข้อมูล' });
+  const data = await db.getAll();
+  res.json({ ok: true, count: data.registrations.length });
+}));
+
+app.get('/api/admin/settings', requireAdmin, wrap(async (req, res) => {
+  const data = await db.getAll();
   res.json({ settings: data.settings, ...buildStats(data) });
-});
+}));
 
-app.post('/api/admin/settings', requireAdmin, (req, res) => {
-  const data = loadData();
+app.post('/api/admin/settings', requireAdmin, wrap(async (req, res) => {
   const baseOffset = parseInt(req.body.baseOffset, 10);
   const totalTarget = parseInt(req.body.totalTarget, 10);
   if (Number.isFinite(baseOffset) && baseOffset >= 0) {
-    data.settings.baseOffset = baseOffset;
+    await db.setSetting('baseOffset', baseOffset);
   }
   if (Number.isFinite(totalTarget) && totalTarget > 0) {
-    data.settings.totalTarget = totalTarget;
+    await db.setSetting('totalTarget', totalTarget);
   }
-  saveData(data);
+  const data = await db.getAll();
   res.json({ ok: true, settings: data.settings, ...buildStats(data) });
-});
+}));
 
-app.delete('/api/admin/registrations/:id', requireAdmin, (req, res) => {
-  const data = loadData();
-  const before = data.registrations.length;
-  data.registrations = data.registrations.filter((r) => r.id !== req.params.id);
-  if (data.registrations.length === before) {
-    return res.status(404).json({ error: 'ไม่พบข้อมูล' });
-  }
-  saveData(data);
-  res.json({ ok: true, count: data.registrations.length });
-});
-
-app.post('/api/admin/lucky-draw', requireAdmin, (req, res) => {
+app.post('/api/admin/lucky-draw', requireAdmin, wrap(async (req, res) => {
   const count = Math.max(1, Math.min(20, parseInt(req.body.count, 10) || 1));
   const excludePrevious = !!req.body.excludePrevious;
-  const data = loadData();
+  const data = await db.getAll();
 
-  const previousIds = new Set(data.winners.map((w) => w.id));
+  const previousIds = new Set();
+  for (const round of data.winners) {
+    for (const w of round.winners || []) previousIds.add(w.id);
+  }
   let pool = data.registrations.slice();
   if (excludePrevious) {
     pool = pool.filter((r) => !previousIds.has(r.id));
@@ -169,43 +147,56 @@ app.post('/api/admin/lucky-draw', requireAdmin, (req, res) => {
   }
 
   const picked = [];
-  const available = pool.slice();
-  const drawCount = Math.min(count, available.length);
+  const drawCount = Math.min(count, pool.length);
   for (let i = 0; i < drawCount; i++) {
-    const idx = Math.floor(Math.random() * available.length);
-    picked.push(available.splice(idx, 1)[0]);
+    const idx = Math.floor(Math.random() * pool.length);
+    picked.push(pool.splice(idx, 1)[0]);
   }
 
   const round = {
     drawnAt: new Date().toISOString(),
-    winners: picked.map((p) => ({ id: p.id, name: p.name, phone: p.phone, department: p.department })),
+    winners: picked.map((p) => ({
+      id: p.id,
+      name: p.name,
+      phone: p.phone,
+      department: p.department,
+    })),
   };
-  data.winners.unshift(round);
-  saveData(data);
+  await db.addWinnerRound(round);
   res.json({ ok: true, round });
-});
+}));
 
-app.post('/api/admin/winners/clear', requireAdmin, (req, res) => {
-  const data = loadData();
-  data.winners = [];
-  saveData(data);
+app.post('/api/admin/winners/clear', requireAdmin, wrap(async (req, res) => {
+  await db.clearWinners();
   res.json({ ok: true });
-});
+}));
 
-app.get('/api/admin/export', requireAdmin, (req, res) => {
-  const data = loadData();
+app.get('/api/admin/export', requireAdmin, wrap(async (req, res) => {
+  const data = await db.getAll();
   const header = 'ลำดับ,ชื่อ-นามสกุล,เบอร์โทร,แผนก,เวลาที่ลงทะเบียน\n';
   const rows = data.registrations
     .map((r, i) => {
       const safe = (s) => `"${String(s || '').replace(/"/g, '""')}"`;
-      return [i + 1, safe(r.name), safe(r.phone), safe(r.department), safe(new Date(r.registeredAt).toLocaleString('th-TH'))].join(',');
+      return [
+        i + 1,
+        safe(r.name),
+        safe(r.phone),
+        safe(r.department),
+        safe(new Date(r.registeredAt).toLocaleString('th-TH')),
+      ].join(',');
     })
     .join('\n');
   res.setHeader('Content-Type', 'text/csv; charset=utf-8');
-  res.setHeader('Content-Disposition', 'attachment; filename="feflddb-earthday-registrations.csv"');
+  res.setHeader(
+    'Content-Disposition',
+    'attachment; filename="feflddb-earthday-registrations.csv"'
+  );
   res.send('﻿' + header + rows);
-});
+}));
 
+// ────────────────────────────────────────
+// Page routes
+// ────────────────────────────────────────
 app.get('/admin', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'admin.html'));
 });
@@ -218,10 +209,31 @@ app.get('/tv', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'tv.html'));
 });
 
-app.listen(PORT, () => {
-  console.log(`🌱 FEFLDDB Earth Day Town Hall server running on http://localhost:${PORT}`);
-  console.log(`👉 Public:     http://localhost:${PORT}/`);
-  console.log(`👉 Admin:      http://localhost:${PORT}/admin (key: ${ADMIN_KEY})`);
-  console.log(`👉 Lucky Draw: http://localhost:${PORT}/lucky-draw`);
-  console.log(`👉 TV Display: http://localhost:${PORT}/tv`);
+// Health check (useful for Railway / uptime monitors)
+app.get('/healthz', (req, res) => res.json({ ok: true, db: db.isPostgres ? 'postgres' : 'json' }));
+
+// Generic error handler
+app.use((err, req, res, next) => {
+  console.error('Unhandled error:', err);
+  res.status(500).json({ error: 'Server error' });
 });
+
+// ────────────────────────────────────────
+// Boot
+// ────────────────────────────────────────
+(async () => {
+  try {
+    await db.init();
+  } catch (e) {
+    console.error('❌ Database init failed:', e.message);
+    process.exit(1);
+  }
+  app.listen(PORT, () => {
+    console.log(`🌱 FEFLDDB Earth Day Town Hall server running on http://localhost:${PORT}`);
+    console.log(`📦 Storage: ${db.isPostgres ? 'PostgreSQL (DATABASE_URL)' : 'JSON file (registrations.json)'}`);
+    console.log(`👉 Public:     http://localhost:${PORT}/`);
+    console.log(`👉 Admin:      http://localhost:${PORT}/admin (key: ${ADMIN_KEY})`);
+    console.log(`👉 Lucky Draw: http://localhost:${PORT}/lucky-draw`);
+    console.log(`👉 TV Display: http://localhost:${PORT}/tv`);
+  });
+})();
