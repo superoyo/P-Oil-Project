@@ -11,8 +11,7 @@
 <style>
   /* ==== TV display page (16:9 fullscreen) ==== */
   html, body {
-    height: 100%;
-    overflow: hidden;
+    min-height: 100%;
     background:
       radial-gradient(1400px 800px at 80% 0%, #fff8d4 0%, transparent 60%),
       radial-gradient(1200px 700px at 0% 100%, #d6f5e3 0%, transparent 60%),
@@ -27,11 +26,16 @@
   .tv-shell {
     position: relative;
     width: 100vw;
-    height: 100vh;
+    min-height: 100vh;
     display: grid;
     grid-template-rows: auto 1fr auto;
-    overflow: hidden;
     z-index: 2;
+  }
+
+  /* Lock to fullscreen only when really TV-sized */
+  @media (min-width: 1280px) and (min-height: 720px) {
+    html, body { height: 100%; overflow: hidden; }
+    .tv-shell  { height: 100vh; min-height: 0; overflow: hidden; }
   }
 
   .tv-header {
