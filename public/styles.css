@@ -328,7 +328,14 @@ a:hover { text-decoration: underline; }
 
 /* ===== Illustrated SVG tree stages (cross-faded) ===== */
 .tree-stage-illus {
-  background: linear-gradient(180deg, #cdeaff 0%, #e6f6ff 60%, #ffffff 100%);
+  background: linear-gradient(180deg, #7ec8f5 0%, #bce5fc 55%, #e2f5cf 100%);
+  /* Container shape matches SVG viewBox (5:6 portrait) so nothing gets cropped */
+  aspect-ratio: 5 / 6;
+  height: auto !important;
+}
+/* Index card: cap so the right column doesn't grow too tall */
+.tree-card .tree-stage-illus {
+  max-height: 460px;
 }
 .tree-stage-illus .illus-tree {
   position: absolute;
