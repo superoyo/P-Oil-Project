@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>หลังบ้าน · FEFLDDB Town Hall #EarthDay</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/styles.css" />
+</head>
+<body class="page-admin">
+
+<!-- Login overlay -->
+<div class="login-overlay" id="login-overlay">
+  <div class="login-card">
+    <svg viewBox="0 0 64 64" width="56" height="56" style="margin-bottom:8px">
+      <defs>
+        <linearGradient id="lg-admin" x1="0" x2="1" y1="1" y2="0">
+          <stop offset="0%" stop-color="#00aec7"/>
+          <stop offset="100%" stop-color="#ffd305"/>
+        </linearGradient>
+      </defs>
+      <circle cx="32" cy="32" r="30" fill="url(#lg-admin)"/>
+      <path d="M32 14 C24 24, 18 30, 18 40 a14 14 0 0 0 28 0 C46 30, 40 24, 32 14 Z" fill="#fff"/>
+    </svg>
+    <h2>หลังบ้าน Admin</h2>
+    <p>ใส่รหัสเข้าใช้งานเพื่อจัดการการลงทะเบียน</p>
+    <input id="admin-key-input" type="password" placeholder="Admin Key" autofocus />
+    <button class="btn btn-primary" id="admin-login-btn">เข้าสู่ระบบ</button>
+    <div class="login-error" id="login-error"></div>
+  </div>
+</div>
+
+<div class="admin-shell" id="admin-shell" style="display:none">
+  <div class="admin-header">
+    <div>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:4px">
+        <svg viewBox="0 0 64 64" width="32" height="32">
+          <defs>
+            <linearGradient id="lg-h" x1="0" x2="1" y1="1" y2="0">
+              <stop offset="0%" stop-color="#00aec7"/>
+              <stop offset="100%" stop-color="#ffd305"/>
+            </linearGradient>
+          </defs>
+          <circle cx="32" cy="32" r="30" fill="url(#lg-h)"/>
+          <path d="M32 14 C24 24, 18 30, 18 40 a14 14 0 0 0 28 0 C46 30, 40 24, 32 14 Z" fill="#fff"/>
+        </svg>
+        <h1>FEFLDDB <span class="accent">Town Hall #EarthDay</span></h1>
+      </div>
+      <div style="color:var(--ink-mute);font-size:13px">หลังบ้านสำหรับดูข้อมูลผู้ลงทะเบียน 💚</div>
+    </div>
+    <nav class="admin-tabs">
+      <a href="/" target="_blank">หน้าลงทะเบียน ↗</a>
+      <a href="/admin" class="active">รายการ</a>
+      <a href="/lucky-draw">🎁 Lucky Draw</a>
+      <a href="#" id="logout-link">ออกจากระบบ</a>
+    </nav>
+  </div>
+
+  <!-- KPI cards -->
+  <div class="kpi-grid">
+    <div class="kpi">
+      <div class="label">ลงทะเบียนแล้ว</div>
+      <div class="value" id="kpi-count">0</div>
+      <div class="sub">จากทั้งหมด <strong id="kpi-total">200</strong> คน</div>
+    </div>
+    <div class="kpi kpi-yellow">
+      <div class="label">เปอร์เซ็นต์</div>
+      <div class="value"><span id="kpi-percent">0</span>%</div>
+      <div class="sub">ของพนักงาน FEFLDDB</div>
+    </div>
+    <div class="kpi kpi-green">
+      <div class="label">ระยะการเติบโต</div>
+      <div class="value"><span id="kpi-stage-emoji">🌱</span></div>
+      <div class="sub" id="kpi-stage-label">เมล็ด</div>
+    </div>
+    <div class="kpi">
+      <div class="label">ลงทะเบียนล่าสุด</div>
+      <div class="value" id="kpi-latest" style="font-size:18px;line-height:1.3">-</div>
+      <div class="sub" id="kpi-latest-time">-</div>
+    </div>
+  </div>
+
+  <!-- Registrations table -->
+  <section class="panel">
+    <div class="panel-header">
+      <h2>📋 รายชื่อผู้ลงทะเบียน</h2>
+      <div class="toolbar">
+        <input type="search" id="search-input" class="search-box" placeholder="ค้นหา ชื่อ / เบอร์ / แผนก..." />
+        <button class="btn btn-secondary" id="refresh-btn">🔄 รีเฟรช</button>
+        <button class="btn btn-yellow" id="export-btn">⬇ ดาวน์โหลด CSV</button>
+      </div>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="reg-table" id="reg-table">
+        <thead>
+          <tr>
+            <th class="num">#</th>
+            <th>ชื่อ - นามสกุล</th>
+            <th>เบอร์โทร</th>
+            <th>แผนก</th>
+            <th>เวลาลงทะเบียน</th>
+            <th class="row-actions"></th>
+          </tr>
+        </thead>
+        <tbody id="reg-tbody">
+          <tr><td colspan="6" class="empty">กำลังโหลด...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+<script>
+const KEY_STORAGE = 'feflddb-admin-key';
+const TOTAL = 200;
+
+const $ = (id) => document.getElementById(id);
+const overlay = $('login-overlay');
+const shell = $('admin-shell');
+const keyInput = $('admin-key-input');
+const loginBtn = $('admin-login-btn');
+const loginError = $('login-error');
+
+let allRegistrations = [];
+let currentKey = '';
+
+function setKey(k) {
+  currentKey = k;
+  localStorage.setItem(KEY_STORAGE, k);
+}
+
+function clearKey() {
+  currentKey = '';
+  localStorage.removeItem(KEY_STORAGE);
+}
+
+async function tryLogin(k) {
+  loginError.textContent = '';
+  try {
+    const r = await fetch('/api/admin/registrations?key=' + encodeURIComponent(k));
+    if (r.status === 401) {
+      loginError.textContent = '❌ รหัสไม่ถูกต้อง';
+      return false;
+    }
+    if (!r.ok) {
+      loginError.textContent = 'เกิดข้อผิดพลาด ลองใหม่';
+      return false;
+    }
+    setKey(k);
+    overlay.style.display = 'none';
+    shell.style.display = 'block';
+    const data = await r.json();
+    render(data);
+    return true;
+  } catch (e) {
+    loginError.textContent = 'เชื่อมต่อไม่ได้';
+    return false;
+  }
+}
+
+loginBtn.addEventListener('click', () => tryLogin(keyInput.value.trim()));
+keyInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') tryLogin(keyInput.value.trim()); });
+
+$('logout-link').addEventListener('click', (e) => {
+  e.preventDefault();
+  clearKey();
+  shell.style.display = 'none';
+  overlay.style.display = 'grid';
+  keyInput.value = '';
+  keyInput.focus();
+});
+
+async function refresh() {
+  if (!currentKey) return;
+  try {
+    const r = await fetch('/api/admin/registrations?key=' + encodeURIComponent(currentKey));
+    if (!r.ok) return;
+    const data = await r.json();
+    render(data);
+  } catch (e) {}
+}
+
+function stageInfo(count) {
+  const pct = (count / TOTAL) * 100;
+  if (pct < 1) return { emoji: '🌱', label: 'รอรดน้ำ' };
+  if (pct < 15) return { emoji: '🌱', label: 'เมล็ด' };
+  if (pct < 50) return { emoji: '🌿', label: 'ต้นกล้า' };
+  if (pct < 85) return { emoji: '🌳', label: 'ต้นไม้' };
+  return { emoji: '🌸', label: 'เบ่งบาน' };
+}
+
+function render(data) {
+  allRegistrations = data.registrations || [];
+  const count = data.count || 0;
+  const percent = Math.min(100, Math.round((count / TOTAL) * 100));
+
+  $('kpi-count').textContent = count;
+  $('kpi-total').textContent = TOTAL;
+  $('kpi-percent').textContent = percent;
+
+  const s = stageInfo(count);
+  $('kpi-stage-emoji').textContent = s.emoji;
+  $('kpi-stage-label').textContent = s.label;
+
+  const latest = allRegistrations[0];
+  if (latest) {
+    $('kpi-latest').textContent = latest.name;
+    $('kpi-latest-time').textContent = new Date(latest.registeredAt).toLocaleString('th-TH');
+  } else {
+    $('kpi-latest').textContent = '-';
+    $('kpi-latest-time').textContent = 'ยังไม่มีผู้ลงทะเบียน';
+  }
+
+  applyFilter();
+}
+
+function applyFilter() {
+  const q = $('search-input').value.trim().toLowerCase();
+  const tbody = $('reg-tbody');
+  const list = !q ? allRegistrations : allRegistrations.filter((r) =>
+    (r.name || '').toLowerCase().includes(q) ||
+    (r.phone || '').includes(q) ||
+    (r.department || '').toLowerCase().includes(q)
+  );
+
+  if (list.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="6" class="empty">${q ? 'ไม่พบข้อมูล' : 'ยังไม่มีผู้ลงทะเบียน — รอเชิญชวนเพื่อนมาลงทะเบียนกันเถอะ! 🌱'}</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = list.map((r, i) => `
+    <tr>
+      <td class="num">${i + 1}</td>
+      <td><strong>${escapeHtml(r.name)}</strong></td>
+      <td>${escapeHtml(formatPhone(r.phone))}</td>
+      <td>${r.department ? escapeHtml(r.department) : '<span style="color:var(--ink-mute)">-</span>'}</td>
+      <td>${new Date(r.registeredAt).toLocaleString('th-TH')}</td>
+      <td class="row-actions"><button class="del-btn" data-id="${r.id}">ลบ</button></td>
+    </tr>
+  `).join('');
+
+  tbody.querySelectorAll('.del-btn').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      if (!confirm('ลบผู้ลงทะเบียนนี้ใช่หรือไม่?')) return;
+      const id = btn.dataset.id;
+      const r = await fetch('/api/admin/registrations/' + id, {
+        method: 'DELETE',
+        headers: { 'x-admin-key': currentKey },
+      });
+      if (r.ok) refresh();
+    });
+  });
+}
+
+function formatPhone(p) {
+  if (!p) return '';
+  const s = String(p);
+  if (s.length === 10) return s.slice(0, 3) + '-' + s.slice(3, 6) + '-' + s.slice(6);
+  if (s.length === 9) return s.slice(0, 2) + '-' + s.slice(2, 5) + '-' + s.slice(5);
+  return s;
+}
+
+function escapeHtml(s) {
+  return String(s || '').replace(/[&<>"']/g, (c) => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[c]));
+}
+
+$('search-input').addEventListener('input', applyFilter);
+$('refresh-btn').addEventListener('click', refresh);
+$('export-btn').addEventListener('click', () => {
+  window.location.href = '/api/admin/export?key=' + encodeURIComponent(currentKey);
+});
+
+// auto refresh every 15s
+setInterval(refresh, 15000);
+
+// auto-login if key in storage
+const stored = localStorage.getItem(KEY_STORAGE);
+if (stored) {
+  tryLogin(stored).then((ok) => { if (!ok) clearKey(); });
+}
+</script>
+</body>
+</html>

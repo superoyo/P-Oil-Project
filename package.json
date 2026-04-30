@@ -1,0 +1,13 @@
+{
+  "name": "feflddb-earthday-townhall",
+  "version": "1.0.0",
+  "description": "FEFLDDB Group Town Hall #EarthDay registration system",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}

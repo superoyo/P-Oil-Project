@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>FEFLDDB Town Hall #EarthDay – ลงทะเบียน</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/styles.css" />
+</head>
+<body class="page-public">
+
+<!-- Floating leaves -->
+<div class="leaves" aria-hidden="true">
+  <span class="leaf">🌿</span><span class="leaf">🍃</span><span class="leaf">🌱</span>
+  <span class="leaf">🍃</span><span class="leaf">🌿</span><span class="leaf">🌱</span>
+  <span class="leaf">🍃</span><span class="leaf">🌿</span>
+</div>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="logo" aria-label="Far East Fame Line DDB">
+      <svg viewBox="0 0 64 64" width="46" height="46" aria-hidden="true">
+        <defs>
+          <linearGradient id="lg1" x1="0" x2="1" y1="1" y2="0">
+            <stop offset="0%" stop-color="#00aec7"/>
+            <stop offset="100%" stop-color="#ffd305"/>
+          </linearGradient>
+        </defs>
+        <circle cx="32" cy="32" r="30" fill="url(#lg1)"/>
+        <path d="M32 12 C24 22, 18 28, 18 38 a14 14 0 0 0 28 0 C46 28, 40 22, 32 12 Z" fill="#fff"/>
+        <path d="M32 18 C28 24, 24 30, 24 38" stroke="#00aec7" stroke-width="2" fill="none" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div class="brand-text">
+      <div class="brand-name">Far East Fame Line <span>DDB</span></div>
+      <div class="brand-sub">Group Town Hall · Earth Day 2026</div>
+    </div>
+  </div>
+  <a class="topbar-link" href="/admin">หลังบ้าน →</a>
+</header>
+
+<main class="hero">
+  <section class="hero-left">
+    <div class="hero-eyebrow">
+      <span class="dot"></span> EARTH DAY · 22 APRIL
+    </div>
+    <h1 class="hero-title">
+      FEFLDDB <span class="title-accent">Group Town Hall</span><br/>
+      <span class="title-hash">#EarthDay</span> <span class="heart">💚</span>
+    </h1>
+    <p class="hero-desc">
+      ร่วมรดน้ำต้นไม้ของพวกเราไปด้วยกัน 🌱<br/>
+      ทุกการลงทะเบียน = หนึ่งหยดน้ำที่ทำให้ต้นไม้ของเราเติบโต<br/>
+      มาร่วมเป็นส่วนหนึ่งของการรักษ์โลกในงาน Town Hall ปีนี้
+    </p>
+
+    <form id="register-form" class="card form-card" autocomplete="off">
+      <h2 class="form-title">📝 ลงทะเบียนเข้าร่วมงาน</h2>
+      <div class="field">
+        <label for="name">ชื่อ - นามสกุล</label>
+        <input id="name" name="name" type="text" required placeholder="เช่น สมชาย ใจดี" maxlength="80"/>
+      </div>
+      <div class="field">
+        <label for="phone">เบอร์โทรศัพท์</label>
+        <input id="phone" name="phone" type="tel" required placeholder="เช่น 0812345678" maxlength="15" inputmode="numeric"/>
+      </div>
+      <div class="field">
+        <label for="department">แผนก / Department <span class="optional">(ไม่บังคับ)</span></label>
+        <input id="department" name="department" type="text" placeholder="เช่น Creative, Account, Strategy" maxlength="60"/>
+      </div>
+      <button type="submit" class="btn btn-primary" id="submit-btn">
+        <span class="btn-label">🌱 รดน้ำต้นไม้ & ลงทะเบียน</span>
+      </button>
+      <p class="form-msg" id="form-msg" role="status"></p>
+    </form>
+  </section>
+
+  <aside class="hero-right">
+    <div class="card tree-card">
+      <div class="tree-header">
+        <h3>🌳 ต้นไม้ของพวกเรา</h3>
+        <p>ยิ่งคนลงทะเบียนเยอะ ต้นไม้ยิ่งเติบโต</p>
+      </div>
+
+      <div class="tree-stage">
+        <!-- Sky background -->
+        <div class="tree-sky"></div>
+        <!-- Tree SVG -->
+        <svg id="tree-svg" class="tree-svg" viewBox="0 0 300 360" aria-hidden="true">
+          <!-- Ground -->
+          <ellipse cx="150" cy="345" rx="130" ry="14" fill="#dff3ec"/>
+          <ellipse cx="150" cy="343" rx="100" ry="9" fill="#bce6d3"/>
+
+          <!-- Trunk -->
+          <path id="trunk" d="M145 340 Q148 300 150 270 Q152 240 150 210" stroke="#7a4f2b" stroke-width="10" stroke-linecap="round" fill="none"/>
+
+          <!-- Branches (initially hidden, revealed by stage) -->
+          <g id="branches" opacity="0">
+            <path d="M150 240 Q130 220 110 215" stroke="#7a4f2b" stroke-width="5" fill="none" stroke-linecap="round"/>
+            <path d="M150 220 Q175 205 195 200" stroke="#7a4f2b" stroke-width="5" fill="none" stroke-linecap="round"/>
+          </g>
+
+          <!-- Foliage clusters; scale up via CSS by stage -->
+          <g id="foliage">
+            <circle class="leaf-circle l1" cx="150" cy="200" r="0" fill="#3aaf7a"/>
+            <circle class="leaf-circle l2" cx="120" cy="195" r="0" fill="#52c08c"/>
+            <circle class="leaf-circle l3" cx="180" cy="190" r="0" fill="#2f9b6a"/>
+            <circle class="leaf-circle l4" cx="150" cy="170" r="0" fill="#5fcd97"/>
+            <circle class="leaf-circle l5" cx="135" cy="160" r="0" fill="#3aaf7a"/>
+            <circle class="leaf-circle l6" cx="170" cy="160" r="0" fill="#2f9b6a"/>
+          </g>
+
+          <!-- Flowers -->
+          <g id="flowers" opacity="0">
+            <circle cx="135" cy="180" r="4" fill="#ffd305"/>
+            <circle cx="165" cy="175" r="4" fill="#ffd305"/>
+            <circle cx="150" cy="155" r="4" fill="#ffd305"/>
+            <circle cx="125" cy="175" r="3" fill="#ff9ec5"/>
+            <circle cx="180" cy="180" r="3" fill="#ff9ec5"/>
+          </g>
+        </svg>
+
+        <!-- Water drops animation slot -->
+        <div class="drops" id="drops" aria-hidden="true"></div>
+      </div>
+
+      <div class="tree-stats">
+        <div class="stat-row">
+          <div class="stat-num"><span id="count">0</span><span class="stat-total">/200</span></div>
+          <div class="stat-label">คนลงทะเบียนแล้ว</div>
+        </div>
+        <div class="progress">
+          <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+        </div>
+        <div class="stat-percent"><span id="percent">0</span>% ของพนักงานทั้งหมด</div>
+      </div>
+
+      <div class="stage-badges">
+        <div class="stage-badge" data-stage="1"><span>🌱</span><small>เมล็ด</small></div>
+        <div class="stage-badge" data-stage="2"><span>🌿</span><small>ต้นกล้า</small></div>
+        <div class="stage-badge" data-stage="3"><span>🌳</span><small>ต้นไม้</small></div>
+        <div class="stage-badge" data-stage="4"><span>🌸</span><small>เบ่งบาน</small></div>
+      </div>
+    </div>
+  </aside>
+</main>
+
+<footer class="footer">
+  <div>© 2026 Far East Fame Line DDB · Group Town Hall #EarthDay</div>
+  <div class="footer-tag">Together we grow 🌱</div>
+</footer>
+
+<script src="/script.js"></script>
+</body>
+</html>

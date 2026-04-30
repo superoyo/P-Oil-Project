@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>🎁 Lucky Draw · FEFLDDB Town Hall #EarthDay</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/styles.css" />
+</head>
+<body class="page-admin">
+
+<!-- Login overlay -->
+<div class="login-overlay" id="login-overlay">
+  <div class="login-card">
+    <svg viewBox="0 0 64 64" width="56" height="56" style="margin-bottom:8px">
+      <defs>
+        <linearGradient id="lg-d" x1="0" x2="1" y1="1" y2="0">
+          <stop offset="0%" stop-color="#00aec7"/>
+          <stop offset="100%" stop-color="#ffd305"/>
+        </linearGradient>
+      </defs>
+      <circle cx="32" cy="32" r="30" fill="url(#lg-d)"/>
+      <path d="M32 14 C24 24, 18 30, 18 40 a14 14 0 0 0 28 0 C46 30, 40 24, 32 14 Z" fill="#fff"/>
+    </svg>
+    <h2>🎁 Lucky Draw</h2>
+    <p>ใส่รหัส Admin เพื่อเริ่มจับรางวัล</p>
+    <input id="admin-key-input" type="password" placeholder="Admin Key" autofocus />
+    <button class="btn btn-primary" id="admin-login-btn">เข้าสู่ระบบ</button>
+    <div class="login-error" id="login-error"></div>
+  </div>
+</div>
+
+<div class="admin-shell" id="admin-shell" style="display:none">
+  <div class="admin-header">
+    <div>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:4px">
+        <svg viewBox="0 0 64 64" width="32" height="32">
+          <defs>
+            <linearGradient id="lg-h2" x1="0" x2="1" y1="1" y2="0">
+              <stop offset="0%" stop-color="#00aec7"/>
+              <stop offset="100%" stop-color="#ffd305"/>
+            </linearGradient>
+          </defs>
+          <circle cx="32" cy="32" r="30" fill="url(#lg-h2)"/>
+          <path d="M32 14 C24 24, 18 30, 18 40 a14 14 0 0 0 28 0 C46 30, 40 24, 32 14 Z" fill="#fff"/>
+        </svg>
+        <h1>🎁 <span class="accent">Lucky Draw</span> · จับฉลากผู้โชคดี</h1>
+      </div>
+      <div style="color:var(--ink-mute);font-size:13px">สุ่มผู้โชคดีจากผู้ที่ลงทะเบียนเข้าร่วม Town Hall 💚</div>
+    </div>
+    <nav class="admin-tabs">
+      <a href="/" target="_blank">หน้าลงทะเบียน ↗</a>
+      <a href="/admin">รายการ</a>
+      <a href="/lucky-draw" class="active">🎁 Lucky Draw</a>
+      <a href="#" id="logout-link">ออกจากระบบ</a>
+    </nav>
+  </div>
+
+  <!-- Draw Stage -->
+  <div class="draw-stage">
+    <h1>🎉 ผู้โชคดีคนถัดไป...</h1>
+    <p class="subtitle">มีผู้ลงทะเบียน <strong id="pool-count">0</strong> คน · จับรางวัลมาแล้ว <strong id="winners-total">0</strong> คน</p>
+
+    <div class="draw-display" id="draw-display">
+      <div class="placeholder">กดปุ่มด้านล่างเพื่อเริ่มจับรางวัล 🎁</div>
+    </div>
+
+    <div class="draw-controls">
+      <div class="field">
+        <label for="count-input">จำนวนผู้โชคดี</label>
+        <input type="number" id="count-input" min="1" max="20" value="1" />
+      </div>
+      <label class="checkbox">
+        <input type="checkbox" id="exclude-prev" checked />
+        ไม่ซ้ำกับรอบที่ผ่านมา
+      </label>
+      <button class="btn btn-yellow" id="draw-btn">🎲 เริ่มจับรางวัล!</button>
+    </div>
+  </div>
+
+  <!-- History -->
+  <section class="panel">
+    <div class="panel-header">
+      <h2>📜 ประวัติการจับรางวัล</h2>
+      <div class="toolbar">
+        <button class="btn btn-secondary" id="clear-history-btn">🗑 ล้างประวัติ</button>
+      </div>
+    </div>
+    <div class="history-list" id="history-list">
+      <div class="empty">ยังไม่มีประวัติการจับรางวัล</div>
+    </div>
+  </section>
+</div>
+
+<script>
+const KEY_STORAGE = 'feflddb-admin-key';
+const $ = (id) => document.getElementById(id);
+
+const overlay = $('login-overlay');
+const shell = $('admin-shell');
+const keyInput = $('admin-key-input');
+const loginBtn = $('admin-login-btn');
+const loginError = $('login-error');
+
+let currentKey = '';
+let pool = [];
+
+async function tryLogin(k) {
+  loginError.textContent = '';
+  try {
+    const r = await fetch('/api/admin/registrations?key=' + encodeURIComponent(k));
+    if (r.status === 401) { loginError.textContent = '❌ รหัสไม่ถูกต้อง'; return false; }
+    if (!r.ok) { loginError.textContent = 'เกิดข้อผิดพลาด'; return false; }
+    currentKey = k;
+    localStorage.setItem(KEY_STORAGE, k);
+    overlay.style.display = 'none';
+    shell.style.display = 'block';
+    const data = await r.json();
+    refresh(data);
+    return true;
+  } catch (e) {
+    loginError.textContent = 'เชื่อมต่อไม่ได้';
+    return false;
+  }
+}
+
+loginBtn.addEventListener('click', () => tryLogin(keyInput.value.trim()));
+keyInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') tryLogin(keyInput.value.trim()); });
+
+$('logout-link').addEventListener('click', (e) => {
+  e.preventDefault();
+  localStorage.removeItem(KEY_STORAGE);
+  currentKey = '';
+  shell.style.display = 'none';
+  overlay.style.display = 'grid';
+  keyInput.value = '';
+  keyInput.focus();
+});
+
+async function fetchData() {
+  const r = await fetch('/api/admin/registrations?key=' + encodeURIComponent(currentKey));
+  if (!r.ok) return null;
+  return await r.json();
+}
+
+function refresh(data) {
+  if (!data) return;
+  pool = data.registrations || [];
+  $('pool-count').textContent = pool.length;
+  let totalWinners = 0;
+  (data.winners || []).forEach((w) => totalWinners += w.winners.length);
+  $('winners-total').textContent = totalWinners;
+  renderHistory(data.winners || []);
+}
+
+function renderHistory(winners) {
+  const wrap = $('history-list');
+  if (winners.length === 0) {
+    wrap.innerHTML = '<div class="empty">ยังไม่มีประวัติการจับรางวัล</div>';
+    return;
+  }
+  wrap.innerHTML = winners.map((round, idx) => `
+    <div class="history-round">
+      <div class="history-round-head">
+        <span><strong>รอบที่ ${winners.length - idx}</strong> · ${new Date(round.drawnAt).toLocaleString('th-TH')}</span>
+        <span>${round.winners.length} คน</span>
+      </div>
+      <div class="history-round-winners">
+        ${round.winners.map((w) => `<span class="pill">🎁 ${escapeHtml(w.name)}${w.department ? ' · ' + escapeHtml(w.department) : ''}</span>`).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+function escapeHtml(s) {
+  return String(s || '').replace(/[&<>"']/g, (c) => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[c]));
+}
+
+$('draw-btn').addEventListener('click', async () => {
+  if (pool.length === 0) {
+    alert('ยังไม่มีผู้ลงทะเบียน ไม่สามารถจับรางวัลได้');
+    return;
+  }
+  const count = Math.max(1, Math.min(20, parseInt($('count-input').value, 10) || 1));
+  const excludePrevious = $('exclude-prev').checked;
+
+  const display = $('draw-display');
+  const btn = $('draw-btn');
+  btn.disabled = true;
+  btn.textContent = '🎲 กำลังสุ่ม...';
+
+  // start spinning UI: cycle random names from pool
+  display.classList.add('draw-spinning');
+  display.innerHTML = '<div class="name" id="spin-name">...</div>';
+  const spinName = $('spin-name');
+  const spinInterval = setInterval(() => {
+    if (pool.length === 0) return;
+    spinName.textContent = pool[Math.floor(Math.random() * pool.length)].name;
+  }, 80);
+
+  try {
+    // call API after a short suspense delay
+    const apiPromise = fetch('/api/admin/lucky-draw', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-admin-key': currentKey },
+      body: JSON.stringify({ count, excludePrevious }),
+    });
+
+    await new Promise((r) => setTimeout(r, 2200));
+
+    const r = await apiPromise;
+    const data = await r.json();
+    clearInterval(spinInterval);
+    display.classList.remove('draw-spinning');
+
+    if (!r.ok) {
+      display.innerHTML = `<div class="placeholder" style="color:#ffeb95">⚠ ${escapeHtml(data.error || 'เกิดข้อผิดพลาด')}</div>`;
+      btn.disabled = false;
+      btn.textContent = '🎲 เริ่มจับรางวัล!';
+      return;
+    }
+
+    const winners = data.round.winners;
+    display.innerHTML = `
+      <div class="draw-result">
+        ${winners.map((w) => `
+          <div class="winner-chip">
+            <div class="wname">🏆 ${escapeHtml(w.name)}</div>
+            <div class="wmeta">📞 ${escapeHtml(formatPhone(w.phone))}</div>
+            ${w.department ? `<div class="wdept">${escapeHtml(w.department)}</div>` : ''}
+          </div>
+        `).join('')}
+      </div>
+    `;
+
+    celebrate();
+
+    // refresh history
+    const fresh = await fetchData();
+    if (fresh) refresh(fresh);
+
+    btn.disabled = false;
+    btn.textContent = '🎲 จับรางวัลอีกรอบ!';
+  } catch (e) {
+    clearInterval(spinInterval);
+    display.classList.remove('draw-spinning');
+    display.innerHTML = '<div class="placeholder">⚠ เกิดข้อผิดพลาด</div>';
+    btn.disabled = false;
+    btn.textContent = '🎲 เริ่มจับรางวัล!';
+  }
+});
+
+$('clear-history-btn').addEventListener('click', async () => {
+  if (!confirm('ล้างประวัติการจับรางวัลทั้งหมด?')) return;
+  await fetch('/api/admin/winners/clear', { method: 'POST', headers: { 'x-admin-key': currentKey } });
+  const fresh = await fetchData();
+  if (fresh) refresh(fresh);
+});
+
+function formatPhone(p) {
+  const s = String(p || '');
+  if (s.length === 10) return s.slice(0,3) + '-' + s.slice(3,6) + '-' + s.slice(6);
+  return s;
+}
+
+function celebrate() {
+  const wrap = document.createElement('div');
+  wrap.className = 'confetti';
+  document.body.appendChild(wrap);
+  const colors = ['#00aec7', '#ffd305', '#3aaf7a', '#ff9ec5', '#5fcd97', '#ff8a5c'];
+  for (let i = 0; i < 150; i++) {
+    const s = document.createElement('span');
+    s.style.left = Math.random() * 100 + '%';
+    s.style.background = colors[Math.floor(Math.random() * colors.length)];
+    s.style.animationDuration = (3 + Math.random() * 2.5) + 's';
+    s.style.animationDelay = (Math.random() * 0.5) + 's';
+    s.style.transform = `rotate(${Math.random() * 360}deg)`;
+    wrap.appendChild(s);
+  }
+  setTimeout(() => wrap.remove(), 6000);
+}
+
+const stored = localStorage.getItem(KEY_STORAGE);
+if (stored) tryLogin(stored).then((ok) => { if (!ok) localStorage.removeItem(KEY_STORAGE); });
+</script>
+</body>
+</html>
