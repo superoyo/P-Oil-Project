@@ -14,16 +14,7 @@
 <!-- Login overlay -->
 <div class="login-overlay" id="login-overlay">
   <div class="login-card">
-    <svg viewBox="0 0 64 64" width="56" height="56" style="margin-bottom:8px">
-      <defs>
-        <linearGradient id="lg-admin" x1="0" x2="1" y1="1" y2="0">
-          <stop offset="0%" stop-color="#00aec7"/>
-          <stop offset="100%" stop-color="#ffd305"/>
-        </linearGradient>
-      </defs>
-      <circle cx="32" cy="32" r="30" fill="url(#lg-admin)"/>
-      <path d="M32 14 C24 24, 18 30, 18 40 a14 14 0 0 0 28 0 C46 30, 40 24, 32 14 Z" fill="#fff"/>
-    </svg>
+    <img src="/logo.png" alt="Far East Fame Line DDB" style="height:54px;margin-bottom:10px;display:block;margin-left:auto;margin-right:auto"/>
     <h2>หลังบ้าน Admin</h2>
     <p>ใส่รหัสเข้าใช้งานเพื่อจัดการการลงทะเบียน</p>
     <input id="admin-key-input" type="password" placeholder="Admin Key" autofocus />
@@ -35,18 +26,9 @@
 <div class="admin-shell" id="admin-shell" style="display:none">
   <div class="admin-header">
     <div>
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:4px">
-        <svg viewBox="0 0 64 64" width="32" height="32">
-          <defs>
-            <linearGradient id="lg-h" x1="0" x2="1" y1="1" y2="0">
-              <stop offset="0%" stop-color="#00aec7"/>
-              <stop offset="100%" stop-color="#ffd305"/>
-            </linearGradient>
-          </defs>
-          <circle cx="32" cy="32" r="30" fill="url(#lg-h)"/>
-          <path d="M32 14 C24 24, 18 30, 18 40 a14 14 0 0 0 28 0 C46 30, 40 24, 32 14 Z" fill="#fff"/>
-        </svg>
-        <h1>FEFLDDB <span class="accent">Town Hall #EarthDay</span></h1>
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:4px">
+        <img src="/logo.png" alt="Far East Fame Line DDB" style="height:42px;flex-shrink:0"/>
+        <h1><span class="brand-black">FEFLDDB GROUP</span> <span class="accent">Town Hall #EarthDay</span></h1>
       </div>
       <div style="color:var(--ink-mute);font-size:13px">หลังบ้านสำหรับดูข้อมูลผู้ลงทะเบียน 💚</div>
     </div>
@@ -117,7 +99,7 @@
     <div class="panel-header">
       <h2>📋 รายชื่อผู้ลงทะเบียน</h2>
       <div class="toolbar">
-        <input type="search" id="search-input" class="search-box" placeholder="ค้นหา ชื่อ / เบอร์ / แผนก..." />
+        <input type="search" id="search-input" class="search-box" placeholder="ค้นหา ชื่อ / แผนก..." />
         <button class="btn btn-secondary" id="refresh-btn">🔄 รีเฟรช</button>
         <button class="btn btn-yellow" id="export-btn">⬇ ดาวน์โหลด CSV</button>
       </div>
@@ -128,14 +110,13 @@
           <tr>
             <th class="num">#</th>
             <th>ชื่อ - นามสกุล</th>
-            <th>เบอร์โทร</th>
             <th>แผนก</th>
             <th>เวลาลงทะเบียน</th>
             <th class="row-actions"></th>
           </tr>
         </thead>
         <tbody id="reg-tbody">
-          <tr><td colspan="6" class="empty">กำลังโหลด...</td></tr>
+          <tr><td colspan="5" class="empty">กำลังโหลด...</td></tr>
         </tbody>
       </table>
     </div>
@@ -265,12 +246,11 @@ function applyFilter() {
   const tbody = $('reg-tbody');
   const list = !q ? allRegistrations : allRegistrations.filter((r) =>
     (r.name || '').toLowerCase().includes(q) ||
-    (r.phone || '').includes(q) ||
     (r.department || '').toLowerCase().includes(q)
   );
 
   if (list.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="6" class="empty">${q ? 'ไม่พบข้อมูล' : 'ยังไม่มีผู้ลงทะเบียน — รอเชิญชวนเพื่อนมาลงทะเบียนกันเถอะ! 🌱'}</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="5" class="empty">${q ? 'ไม่พบข้อมูล' : 'ยังไม่มีผู้ลงทะเบียน — รอเชิญชวนเพื่อนมาลงทะเบียนกันเถอะ! 🌱'}</td></tr>`;
     return;
   }
 
@@ -278,7 +258,6 @@ function applyFilter() {
     <tr>
       <td class="num">${i + 1}</td>
       <td><strong>${escapeHtml(r.name)}</strong></td>
-      <td>${escapeHtml(formatPhone(r.phone))}</td>
       <td>${r.department ? escapeHtml(r.department) : '<span style="color:var(--ink-mute)">-</span>'}</td>
       <td>${new Date(r.registeredAt).toLocaleString('th-TH')}</td>
       <td class="row-actions"><button class="del-btn" data-id="${r.id}">ลบ</button></td>

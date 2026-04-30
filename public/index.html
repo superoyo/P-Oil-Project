@@ -20,22 +20,10 @@
 
 <header class="topbar">
   <div class="brand">
-    <div class="logo" aria-label="Far East Fame Line DDB">
-      <svg viewBox="0 0 64 64" width="46" height="46" aria-hidden="true">
-        <defs>
-          <linearGradient id="lg1" x1="0" x2="1" y1="1" y2="0">
-            <stop offset="0%" stop-color="#00aec7"/>
-            <stop offset="100%" stop-color="#ffd305"/>
-          </linearGradient>
-        </defs>
-        <circle cx="32" cy="32" r="30" fill="url(#lg1)"/>
-        <path d="M32 12 C24 22, 18 28, 18 38 a14 14 0 0 0 28 0 C46 28, 40 22, 32 12 Z" fill="#fff"/>
-        <path d="M32 18 C28 24, 24 30, 24 38" stroke="#00aec7" stroke-width="2" fill="none" stroke-linecap="round"/>
-      </svg>
-    </div>
+    <img class="logo-img" src="/logo.png" alt="Far East Fame Line DDB" />
     <div class="brand-text">
-      <div class="brand-name">Far East Fame Line <span>DDB</span></div>
-      <div class="brand-sub">Group Town Hall · Earth Day 2026</div>
+      <div class="brand-name brand-name-cyan">Far East Fame Line DDB Group</div>
+      <div class="brand-sub">Town Hall · Earth Day 2026</div>
     </div>
   </div>
   <a class="topbar-link" href="/admin">หลังบ้าน →</a>
@@ -44,7 +32,7 @@
 <main class="hero">
   <section class="hero-left">
     <div class="hero-eyebrow">
-      <span class="dot"></span> EARTH DAY · 22 APRIL
+      <span class="dot"></span> EARTH DAY · 30 APRIL
     </div>
     <h1 class="hero-title">
       FEFLDDB <span class="title-accent">Group Town Hall</span><br/>
@@ -63,15 +51,28 @@
         <input id="name" name="name" type="text" required placeholder="เช่น สมชาย ใจดี" maxlength="80"/>
       </div>
       <div class="field">
-        <label for="phone">เบอร์โทรศัพท์</label>
-        <input id="phone" name="phone" type="tel" required placeholder="เช่น 0812345678" maxlength="15" inputmode="numeric"/>
-      </div>
-      <div class="field">
-        <label for="department">แผนก / Department <span class="optional">(ไม่บังคับ)</span></label>
-        <input id="department" name="department" type="text" placeholder="เช่น Creative, Account, Strategy" maxlength="60"/>
+        <label for="department">แผนก / Department</label>
+        <select id="department" name="department" required>
+          <option value="" disabled selected>-- เลือกแผนก --</option>
+          <option value="Top Management">Top Management</option>
+          <option value="Legal &amp; Compliance">Legal &amp; Compliance</option>
+          <option value="Media">Media</option>
+          <option value="Strategic Digital Planning and Insight">Strategic Digital Planning and Insight</option>
+          <option value="Account Management">Account Management</option>
+          <option value="Administrative &amp; Procurement">Administrative &amp; Procurement</option>
+          <option value="Creative">Creative</option>
+          <option value="Data &amp; AI">Data &amp; AI</option>
+          <option value="SpringBoardPlus">SpringBoardPlus</option>
+          <option value="Design &amp; Production">Design &amp; Production</option>
+          <option value="Asia Business">Asia Business</option>
+          <option value="Human Resources/People and Organization Development">Human Resources/People and Organization Development</option>
+          <option value="Film Production">Film Production</option>
+          <option value="Accounting &amp; Finance">Accounting &amp; Finance</option>
+          <option value="Business Development">Business Development</option>
+        </select>
       </div>
       <button type="submit" class="btn btn-primary" id="submit-btn">
-        <span class="btn-label">🌱 รดน้ำต้นไม้ & ลงทะเบียน</span>
+        <span class="btn-label">🌱 รดน้ำต้นไม้ &amp; ลงทะเบียน</span>
       </button>
       <p class="form-msg" id="form-msg" role="status"></p>
     </form>
@@ -100,11 +101,16 @@
               <stop offset="50%" stop-color="#b78258"/>
               <stop offset="100%" stop-color="#7a4f2b"/>
             </linearGradient>
-            <radialGradient id="foliageGrad" cx="40%" cy="35%">
-              <stop offset="0%" stop-color="#9aebbe"/>
-              <stop offset="60%" stop-color="#5fcd97"/>
-              <stop offset="100%" stop-color="#3aaf7a"/>
+            <radialGradient id="foliageGrad" cx="38%" cy="30%">
+              <stop offset="0%" stop-color="#cdfbe0"/>
+              <stop offset="40%" stop-color="#7ddcad"/>
+              <stop offset="80%" stop-color="#3fc789"/>
+              <stop offset="100%" stop-color="#1ea66a"/>
             </radialGradient>
+            <filter id="treeGlow" x="-30%" y="-30%" width="160%" height="160%">
+              <feGaussianBlur stdDeviation="3" result="blur"/>
+              <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
             <radialGradient id="hillGrad" cx="50%" cy="0%">
               <stop offset="0%" stop-color="#c8ecd6"/>
               <stop offset="100%" stop-color="#8fd6a8"/>

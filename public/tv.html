@@ -57,6 +57,13 @@
     display: grid; place-items: center;
     box-shadow: 0 10px 30px rgba(0,174,199,0.25);
   }
+  .tv-brand .logo-big-img {
+    height: 64px;
+    width: auto;
+    display: block;
+    flex-shrink: 0;
+  }
+  .tv-brand .titles h1 span { color: var(--ci-cyan); }
   .tv-brand .titles { line-height: 1.1; }
   .tv-brand .titles h1 {
     font-size: 30px;
@@ -377,22 +384,10 @@
   <!-- Header -->
   <header class="tv-header">
     <div class="tv-brand">
-      <div class="logo-big">
-        <svg viewBox="0 0 64 64" width="56" height="56" aria-hidden="true">
-          <defs>
-            <linearGradient id="tv-lg" x1="0" x2="1" y1="1" y2="0">
-              <stop offset="0%" stop-color="#00aec7"/>
-              <stop offset="100%" stop-color="#ffd305"/>
-            </linearGradient>
-          </defs>
-          <circle cx="32" cy="32" r="30" fill="url(#tv-lg)"/>
-          <path d="M32 12 C24 22, 18 28, 18 38 a14 14 0 0 0 28 0 C46 28, 40 22, 32 12 Z" fill="#fff"/>
-          <path d="M32 18 C28 24, 24 30, 24 38" stroke="#00aec7" stroke-width="2" fill="none" stroke-linecap="round"/>
-        </svg>
-      </div>
+      <img class="logo-big-img" src="/logo.png" alt="Far East Fame Line DDB" />
       <div class="titles">
-        <h1>Far East Fame Line <span>DDB</span></h1>
-        <div class="tag">Group Town Hall · Earth Day 2026 💚</div>
+        <h1>Far East Fame Line DDB <span>Group</span></h1>
+        <div class="tag">Town Hall · Earth Day 2026 💚</div>
       </div>
     </div>
     <div class="tv-eyebrow">
@@ -427,11 +422,16 @@
               <stop offset="50%" stop-color="#b78258"/>
               <stop offset="100%" stop-color="#7a4f2b"/>
             </linearGradient>
-            <radialGradient id="tv-foliageGrad" cx="40%" cy="35%">
-              <stop offset="0%" stop-color="#9aebbe"/>
-              <stop offset="60%" stop-color="#5fcd97"/>
-              <stop offset="100%" stop-color="#3aaf7a"/>
+            <radialGradient id="tv-foliageGrad" cx="38%" cy="30%">
+              <stop offset="0%" stop-color="#cdfbe0"/>
+              <stop offset="40%" stop-color="#7ddcad"/>
+              <stop offset="80%" stop-color="#3fc789"/>
+              <stop offset="100%" stop-color="#1ea66a"/>
             </radialGradient>
+            <filter id="tv-treeGlow" x="-30%" y="-30%" width="160%" height="160%">
+              <feGaussianBlur stdDeviation="3" result="blur"/>
+              <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
             <radialGradient id="tv-hillGrad" cx="50%" cy="0%">
               <stop offset="0%" stop-color="#c8ecd6"/>
               <stop offset="100%" stop-color="#8fd6a8"/>

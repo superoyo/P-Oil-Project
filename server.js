@@ -45,33 +45,36 @@ const wrap = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).cat
 // ────────────────────────────────────────
 app.post('/api/register', wrap(async (req, res) => {
   const name = String(req.body.name || '').trim();
-  const phoneRaw = String(req.body.phone || '').trim();
   const department = String(req.body.department || '').trim();
-  const phone = normalizePhone(phoneRaw);
 
   if (!name || name.length < 2) {
     return res.status(400).json({ error: 'กรุณากรอกชื่อ-นามสกุล' });
   }
-  if (!phone || phone.length < 9 || phone.length > 10) {
-    return res.status(400).json({ error: 'กรุณากรอกเบอร์โทรให้ถูกต้อง' });
+  if (!department) {
+    return res.status(400).json({ error: 'กรุณาเลือกแผนก' });
   }
 
-  const existing = await db.findByPhone(phone);
-  if (existing) {
-    return res.status(409).json({ error: 'เบอร์โทรนี้ลงทะเบียนแล้ว' });
+  const data = await db.getAll();
+  const dup = data.registrations.find(
+    (r) =>
+      r.name.trim().toLowerCase() === name.toLowerCase() &&
+      (r.department || '').trim().toLowerCase() === department.toLowerCase()
+  );
+  if (dup) {
+    return res.status(409).json({ error: 'ชื่อนี้ลงทะเบียนในแผนกนี้แล้ว' });
   }
 
   const entry = {
     id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7),
     name,
-    phone,
+    phone: '',
     department,
     registeredAt: new Date().toISOString(),
   };
   await db.addRegistration(entry);
 
-  const data = await db.getAll();
-  const stats = buildStats(data);
+  const data2 = await db.getAll();
+  const stats = buildStats(data2);
   res.json({ ok: true, ...stats, entry: { id: entry.id, name: entry.name } });
 }));
 

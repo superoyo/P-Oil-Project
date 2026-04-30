@@ -1,7 +1,6 @@
 (() => {
   const form = document.getElementById('register-form');
   const nameEl = document.getElementById('name');
-  const phoneEl = document.getElementById('phone');
   const deptEl = document.getElementById('department');
   const submitBtn = document.getElementById('submit-btn');
   const formMsg = document.getElementById('form-msg');
@@ -96,22 +95,17 @@
     formMsg.className = 'form-msg' + (type ? ' ' + type : '');
   }
 
-  phoneEl.addEventListener('input', () => {
-    phoneEl.value = phoneEl.value.replace(/[^0-9]/g, '').slice(0, 10);
-  });
-
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     const name = nameEl.value.trim();
-    const phone = phoneEl.value.trim();
-    const department = deptEl.value.trim();
+    const department = (deptEl.value || '').trim();
 
-    if (!name || !phone) {
-      setMsg('กรุณากรอกข้อมูลให้ครบถ้วน', 'error');
+    if (!name) {
+      setMsg('กรุณากรอกชื่อ-นามสกุล', 'error');
       return;
     }
-    if (phone.length < 9) {
-      setMsg('เบอร์โทรไม่ถูกต้อง', 'error');
+    if (!department) {
+      setMsg('กรุณาเลือกแผนก', 'error');
       return;
     }
 
@@ -122,7 +116,7 @@
       const r = await fetch('/api/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, phone, department }),
+        body: JSON.stringify({ name, department }),
       });
       const data = await r.json();
       if (!r.ok) {
