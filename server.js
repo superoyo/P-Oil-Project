@@ -230,7 +230,11 @@ app.use((err, req, res, next) => {
   }
   app.listen(PORT, () => {
     console.log(`🌱 FEFLDDB Earth Day Town Hall server running on http://localhost:${PORT}`);
-    console.log(`📦 Storage: ${db.isPostgres ? 'PostgreSQL (DATABASE_URL)' : 'JSON file (registrations.json)'}`);
+    if (db.isPostgres) {
+      console.log(`📦 Storage: PostgreSQL (DATABASE_URL)`);
+    } else {
+      console.log(`📦 Storage: JSON file at ${db.jsonPath}`);
+    }
     console.log(`👉 Public:     http://localhost:${PORT}/`);
     console.log(`👉 Admin:      http://localhost:${PORT}/admin (key: ${ADMIN_KEY})`);
     console.log(`👉 Lucky Draw: http://localhost:${PORT}/lucky-draw`);

@@ -28,6 +28,7 @@
 | Variable | Required | Default | คำอธิบาย |
 |----------|----------|---------|----------|
 | `DATABASE_URL` | optional | - | Postgres URL — ถ้าไม่ตั้งจะใช้ JSON file |
+| `DATA_DIR` | optional | `__dirname` | โฟลเดอร์เก็บ `registrations.json` (ใช้ตอน mount volume) |
 | `ADMIN_KEY` | optional | `feflddb2026` | รหัส admin |
 | `PORT` | optional | `4242` | พอร์ต |
 
@@ -44,19 +45,31 @@ npm start
 
 หากไม่ได้ตั้ง `DATABASE_URL` ระบบจะเก็บข้อมูลใน `registrations.json` (อยู่ใน `.gitignore`)
 
-## 🚂 Deploy บน Railway (มี Persistent Database)
+## 🚂 Deploy บน Railway
 
-1. Push repo นี้ขึ้น GitHub แล้วเชื่อม Railway กับ repo
-2. ใน Railway project, กด **+ New** → **Database** → **PostgreSQL**
-   - Railway จะ auto-inject `DATABASE_URL` เข้า service ของแอปให้
-3. (แนะนำ) ตั้ง env เพิ่ม:
-   - `ADMIN_KEY` = รหัสของคุณ
-   - `NODE_ENV` = `production`
-4. Deploy — ตอน startup จะเห็น log:
+มี 2 ทางเลือกให้ข้อมูลไม่หายเวลา redeploy — เลือกอันใดอันหนึ่ง
+
+### ทางเลือก A: Volume + JSON file (ง่าย ไม่ต้องสร้าง DB)
+
+1. ใน Railway service ของแอป → tab **Settings** → **Volumes** → **+ Add Volume**
+   - **Mount path:** `/data` (หรืออะไรก็ได้)
+2. ใน tab **Variables** เพิ่ม env:
+   - `DATA_DIR` = `/data` (ตรงกับ mount path ที่เลือก)
+3. (แนะนำ) เพิ่ม `ADMIN_KEY` = รหัสของคุณ
+4. Redeploy — ตอน startup จะเห็น log:
    ```
-   📦 Storage: PostgreSQL (DATABASE_URL)
+   📦 Storage: JSON file at /data/registrations.json
    ```
-5. Redeploy โค้ดได้ตามต้องการ → ข้อมูลผู้ลงทะเบียนยังอยู่ครบ ✅
+5. ทุกครั้งที่ redeploy โค้ด ข้อมูลใน volume ยังอยู่ครบ ✅
+
+### ทางเลือก B: PostgreSQL plugin
+
+1. ใน Railway project → **+ New** → **Database** → **PostgreSQL**
+   - Railway จะ auto-inject `DATABASE_URL` เข้า service ของแอป
+2. (แนะนำ) ตั้ง env เพิ่ม `ADMIN_KEY`, `NODE_ENV=production`
+3. Redeploy — log จะแสดง `📦 Storage: PostgreSQL (DATABASE_URL)`
+
+> **หมายเหตุ:** ถ้า set ทั้ง `DATABASE_URL` และ `DATA_DIR` พร้อมกัน — ระบบจะใช้ Postgres เป็นหลัก
 
 ## โครงสร้าง
 

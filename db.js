@@ -20,7 +20,19 @@ const path = require('path');
 const DATABASE_URL = process.env.DATABASE_URL;
 const isPostgres = !!DATABASE_URL;
 
-const JSON_FILE = path.join(__dirname, 'registrations.json');
+// Where to put the JSON file. Override with DATA_DIR env var when running
+// behind a persistent volume (e.g. Railway Volume mounted at /data).
+// Falls back to the project root for local dev.
+const DATA_DIR = process.env.DATA_DIR || __dirname;
+const JSON_FILE = path.join(DATA_DIR, 'registrations.json');
+
+if (!isPostgres) {
+  try {
+    if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+  } catch (e) {
+    console.error('❌ Could not create DATA_DIR:', DATA_DIR, e.message);
+  }
+}
 
 const DEFAULT_SETTINGS = { baseOffset: 0, totalTarget: 10 };
 
@@ -238,6 +250,7 @@ async function setSetting(key, value) {
 
 module.exports = {
   isPostgres,
+  jsonPath: isPostgres ? null : JSON_FILE,
   init,
   getAll,
   findByPhone,
