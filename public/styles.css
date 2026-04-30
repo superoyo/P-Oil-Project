@@ -326,7 +326,142 @@ a:hover { text-decoration: underline; }
   z-index: 1;
 }
 
-/* ===== Image-based tree stages (replaces SVG when .tree-stage-img) ===== */
+/* ===== Illustrated SVG tree stages (cross-faded) ===== */
+.tree-stage-illus {
+  background: linear-gradient(180deg, #cdeaff 0%, #e6f6ff 60%, #ffffff 100%);
+}
+.tree-stage-illus .illus-tree {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  z-index: 2;
+}
+.tree-stage-illus .i-stage {
+  opacity: 0;
+  transform: scale(0.92);
+  transform-origin: 200px 470px;
+  transition: opacity 1s ease, transform 1.4s cubic-bezier(.25,1.4,.45,1);
+}
+.tree-stage-illus[data-stage="0"] .i-stage-1,
+.tree-stage-illus[data-stage="1"] .i-stage-1,
+.tree-stage-illus[data-stage="2"] .i-stage-2,
+.tree-stage-illus[data-stage="3"] .i-stage-3,
+.tree-stage-illus[data-stage="4"] .i-stage-4 {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Sun gentle pulse */
+.tree-stage-illus .i-sun-group {
+  transform-origin: 340px 90px;
+  animation: iSunPulse 4s ease-in-out infinite;
+}
+@keyframes iSunPulse {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.06); }
+}
+
+/* Cloud drift */
+.tree-stage-illus .i-cloud-1 { animation: iCloud1 22s ease-in-out infinite; }
+.tree-stage-illus .i-cloud-2 { animation: iCloud2 28s ease-in-out infinite reverse; }
+@keyframes iCloud1 {
+  0%, 100% { transform: translateX(0); }
+  50%      { transform: translateX(28px); }
+}
+@keyframes iCloud2 {
+  0%, 100% { transform: translateX(0); }
+  50%      { transform: translateX(-22px); }
+}
+
+/* Tiny sprout sway in stage 1 */
+.tree-stage-illus .i-tiny-sprout {
+  transform-origin: 200px 408px;
+  animation: iSway 3.5s ease-in-out infinite;
+}
+.tree-stage-illus .i-sprout {
+  transform-origin: 200px 425px;
+  animation: iSway 3s ease-in-out infinite;
+}
+@keyframes iSway {
+  0%, 100% { transform: rotate(-3deg); }
+  50%      { transform: rotate(3deg); }
+}
+
+/* Foliage gentle bobble (stage 3 + 4) */
+.tree-stage-illus .i-foliage-3,
+.tree-stage-illus .i-foliage-4 {
+  transform-origin: 200px 230px;
+  animation: iFoliageBob 5s ease-in-out infinite;
+}
+@keyframes iFoliageBob {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50%      { transform: translateY(-3px) scale(1.012); }
+}
+
+/* Bloom glow halo pulse */
+.tree-stage-illus .i-bloom-halo {
+  transform-origin: 200px 195px;
+  animation: iHaloPulse 4s ease-in-out infinite;
+}
+@keyframes iHaloPulse {
+  0%, 100% { opacity: 0.7; transform: scale(1); }
+  50%      { opacity: 1;   transform: scale(1.07); }
+}
+
+/* Butterfly flutter */
+.tree-stage-illus .i-butterfly {
+  animation: iButterfly 6s ease-in-out infinite;
+}
+@keyframes iButterfly {
+  0%   { transform: translate(310px, 200px) rotate(0deg); }
+  25%  { transform: translate(280px, 175px) rotate(-12deg); }
+  50%  { transform: translate(310px, 150px) rotate(0deg); }
+  75%  { transform: translate(340px, 180px) rotate(12deg); }
+  100% { transform: translate(310px, 200px) rotate(0deg); }
+}
+
+/* Sparkles twinkle */
+.tree-stage-illus .i-spark {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: iTwinkle 2s ease-in-out infinite;
+}
+.tree-stage-illus .i-spark.s2 { animation-delay: 0.7s; }
+.tree-stage-illus .i-spark.s3 { animation-delay: 1.4s; }
+@keyframes iTwinkle {
+  0%, 100% { opacity: 0.3; transform: scale(0.6); }
+  50%      { opacity: 1;   transform: scale(1.3); }
+}
+
+/* Falling petals (bloom only) */
+.tree-stage-illus .i-petal {
+  animation: iPetalFall 6s ease-in infinite;
+}
+.tree-stage-illus .i-petal.p2 { animation-delay: 1.5s; animation-duration: 7s; }
+.tree-stage-illus .i-petal.p3 { animation-delay: 3s;   animation-duration: 8s; }
+.tree-stage-illus .i-petal.p4 { animation-delay: 4.5s; animation-duration: 6.5s; }
+@keyframes iPetalFall {
+  0%   { transform: translate(0, 0) rotate(0deg);    opacity: 0; }
+  10%  { opacity: 0.9; }
+  100% { transform: translate(-15px, 130px) rotate(360deg); opacity: 0; }
+}
+
+/* Tree shake when register triggered */
+.tree-stage-illus.shake .illus-tree {
+  animation: iShake 0.6s ease;
+}
+@keyframes iShake {
+  0%, 100% { transform: translateX(0) rotate(0deg); }
+  25%      { transform: translateX(-3px) rotate(-1deg); }
+  75%      { transform: translateX(3px)  rotate(1deg); }
+}
+
+/* ===== Old image-based tree stages (kept for backward compat, hidden) ===== */
+.tree-stage-img { display: none !important; }
+
+/* ===== (Legacy) Image-based tree stages ===== */
 .tree-stage-img {
   background: linear-gradient(180deg, #cdeaff 0%, #e6f6ff 60%, #ffffff 100%);
 }

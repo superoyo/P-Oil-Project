@@ -85,15 +85,276 @@
         <p>ยิ่งคนลงทะเบียนเยอะ ต้นไม้ยิ่งเติบโต</p>
       </div>
 
-      <div class="tree-stage tree-stage-img">
-        <!-- Image-based stage (cross-faded) -->
-        <img class="tree-img tree-img-1" src="/tree-stage1-seed.png"   alt="" />
-        <img class="tree-img tree-img-2" src="/tree-stage2-sprout.png" alt="" />
-        <img class="tree-img tree-img-3" src="/tree-stage3-tree.png"   alt="" />
-        <img class="tree-img tree-img-4" src="/tree-stage4-bloom.png"  alt="" />
-        <div class="tree-bloom-glow" aria-hidden="true"></div>
+      <div class="tree-stage tree-stage-illus" data-stage="0">
+        <svg class="illus-tree" viewBox="0 0 400 480" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+          <defs>
+            <linearGradient id="i-sky" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%"  stop-color="#7ec8f5"/>
+              <stop offset="55%" stop-color="#bce5fc"/>
+              <stop offset="100%" stop-color="#e2f5cf"/>
+            </linearGradient>
+            <radialGradient id="i-sun" cx="50%" cy="50%">
+              <stop offset="0%"  stop-color="#fffbe0"/>
+              <stop offset="50%" stop-color="#ffe98a"/>
+              <stop offset="100%" stop-color="#ffcc4a" stop-opacity="0"/>
+            </radialGradient>
+            <linearGradient id="i-soil" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%"   stop-color="#a3683a"/>
+              <stop offset="50%"  stop-color="#7c4a23"/>
+              <stop offset="100%" stop-color="#5a3413"/>
+            </linearGradient>
+            <linearGradient id="i-grass" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%"  stop-color="#9adc6e"/>
+              <stop offset="100%" stop-color="#4ea53b"/>
+            </linearGradient>
+            <linearGradient id="i-trunk" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%"  stop-color="#6e3f1f"/>
+              <stop offset="50%" stop-color="#a26b3f"/>
+              <stop offset="100%" stop-color="#5e3315"/>
+            </linearGradient>
+            <radialGradient id="i-foliage" cx="42%" cy="32%">
+              <stop offset="0%"  stop-color="#cbf2b3"/>
+              <stop offset="45%" stop-color="#7ed163"/>
+              <stop offset="80%" stop-color="#3da632"/>
+              <stop offset="100%" stop-color="#1f7c1f"/>
+            </radialGradient>
+            <radialGradient id="i-bloomGlow" cx="50%" cy="40%">
+              <stop offset="0%"  stop-color="#fff8c8" stop-opacity="0.6"/>
+              <stop offset="50%" stop-color="#ffe88a" stop-opacity="0.25"/>
+              <stop offset="100%" stop-color="#ffd305" stop-opacity="0"/>
+            </radialGradient>
+          </defs>
 
-        <!-- Legacy SVG fallback (hidden when image stage is active) -->
+          <!-- ===== Common base scene ===== -->
+          <rect width="400" height="480" fill="url(#i-sky)"/>
+
+          <!-- Sun -->
+          <g class="i-sun-group">
+            <circle cx="340" cy="90" r="62" fill="url(#i-sun)" opacity="0.85"/>
+            <circle cx="340" cy="90" r="34" fill="#fff5a3"/>
+            <circle cx="332" cy="82" r="6"  fill="#fffbe0" opacity="0.9"/>
+          </g>
+
+          <!-- Clouds (drift) -->
+          <g class="i-cloud i-cloud-1" opacity="0.95">
+            <ellipse cx="80"  cy="80" rx="36" ry="14" fill="#fff"/>
+            <ellipse cx="60"  cy="86" rx="20" ry="11" fill="#fff"/>
+            <ellipse cx="100" cy="88" rx="22" ry="11" fill="#fff"/>
+            <ellipse cx="78"  cy="74" rx="18" ry="10" fill="#fff"/>
+          </g>
+          <g class="i-cloud i-cloud-2" opacity="0.88">
+            <ellipse cx="200" cy="50" rx="26" ry="10" fill="#fff"/>
+            <ellipse cx="186" cy="54" rx="14" ry="8"  fill="#fff"/>
+            <ellipse cx="214" cy="55" rx="14" ry="8"  fill="#fff"/>
+          </g>
+
+          <!-- Distant rolling hills -->
+          <path d="M0 320 Q60 280 130 295 Q200 270 270 295 Q340 280 400 305 L400 480 L0 480 Z"
+                fill="#b6e6a3" opacity="0.55"/>
+          <path d="M0 360 Q70 330 150 345 Q220 320 300 340 Q360 325 400 350 L400 480 L0 480 Z"
+                fill="#94d579" opacity="0.85"/>
+
+          <!-- ===== Stage 1 — Bare soil with seed ===== -->
+          <g class="i-stage i-stage-1">
+            <ellipse cx="200" cy="430" rx="220" ry="55" fill="url(#i-soil)"/>
+            <!-- Soil texture -->
+            <g opacity="0.45">
+              <circle cx="80"  cy="420" r="3"   fill="#3e220d"/>
+              <circle cx="130" cy="445" r="2.5" fill="#3e220d"/>
+              <circle cx="170" cy="430" r="2"   fill="#3e220d"/>
+              <circle cx="245" cy="442" r="3"   fill="#3e220d"/>
+              <circle cx="290" cy="425" r="2.5" fill="#3e220d"/>
+              <circle cx="330" cy="445" r="2"   fill="#3e220d"/>
+              <circle cx="380" cy="430" r="2.5" fill="#3e220d"/>
+            </g>
+            <!-- Soil bumps -->
+            <ellipse cx="100" cy="410" rx="10" ry="3" fill="#7c4a23" opacity="0.6"/>
+            <ellipse cx="290" cy="412" rx="8"  ry="2.5" fill="#7c4a23" opacity="0.6"/>
+            <!-- Seed (cute oval) -->
+            <ellipse cx="200" cy="416" rx="13" ry="9" fill="#a96c3c" stroke="#5e3315" stroke-width="1.5"/>
+            <ellipse cx="196" cy="412" rx="4"  ry="2.5" fill="#d3a877" opacity="0.85"/>
+            <!-- Tiny sprout -->
+            <g class="i-tiny-sprout">
+              <path d="M200 408 Q198 400 196 396" stroke="#3aaf7a" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+              <ellipse cx="195" cy="394" rx="4" ry="2.4" fill="#7ed163" stroke="#3aa138" stroke-width="0.5" transform="rotate(-30 195 394)"/>
+            </g>
+          </g>
+
+          <!-- ===== Stage 2 — Sprout ===== -->
+          <g class="i-stage i-stage-2">
+            <ellipse cx="200" cy="430" rx="220" ry="55" fill="url(#i-soil)"/>
+            <g opacity="0.4">
+              <circle cx="80"  cy="420" r="3"   fill="#3e220d"/>
+              <circle cx="130" cy="445" r="2.5" fill="#3e220d"/>
+              <circle cx="245" cy="442" r="3"   fill="#3e220d"/>
+              <circle cx="330" cy="445" r="2"   fill="#3e220d"/>
+            </g>
+            <!-- Sprout stem -->
+            <g class="i-sprout">
+              <path d="M200 425 Q200 380 200 350" stroke="#62b653" stroke-width="4" fill="none" stroke-linecap="round"/>
+              <!-- Left leaf -->
+              <path d="M200 365 Q175 358 162 345 Q175 338 198 358 Z" fill="#7ed163" stroke="#3aa138" stroke-width="1.4"/>
+              <line x1="195" y1="360" x2="170" y2="350" stroke="#3aa138" stroke-width="0.8" opacity="0.7"/>
+              <!-- Right leaf -->
+              <path d="M200 360 Q225 353 238 340 Q225 333 202 353 Z" fill="#7ed163" stroke="#3aa138" stroke-width="1.4"/>
+              <line x1="205" y1="355" x2="230" y2="345" stroke="#3aa138" stroke-width="0.8" opacity="0.7"/>
+              <!-- Top bud -->
+              <ellipse cx="200" cy="345" rx="5" ry="7" fill="#9be08e" stroke="#3aa138" stroke-width="1.2"/>
+              <ellipse cx="198" cy="343" rx="1.5" ry="2.5" fill="#cbf2b3"/>
+            </g>
+          </g>
+
+          <!-- ===== Stage 3 — Full tree ===== -->
+          <g class="i-stage i-stage-3">
+            <!-- Grass ground -->
+            <path d="M0 380 Q60 360 130 375 Q200 365 280 380 Q350 370 400 385 L400 480 L0 480 Z" fill="url(#i-grass)"/>
+            <!-- Grass blades -->
+            <g class="i-grass-tufts" stroke="#2f8a25" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.7">
+              <path d="M40 410 L42 400 L44 410 L46 398 L48 410"/>
+              <path d="M340 408 L342 398 L344 408 L346 396 L348 408"/>
+              <path d="M70 430 L72 420 L74 430"/>
+              <path d="M310 432 L312 422 L314 432"/>
+            </g>
+            <!-- Tree shadow -->
+            <ellipse cx="200" cy="425" rx="95" ry="11" fill="#000" opacity="0.18"/>
+            <!-- Trunk -->
+            <g class="i-trunk-3">
+              <path d="M188 425 L182 380 Q176 360 182 340 Q190 320 184 290 Q178 260 192 235"
+                    stroke="url(#i-trunk)" stroke-width="34" fill="none" stroke-linecap="round"/>
+              <!-- Highlight -->
+              <path d="M178 420 L174 380 Q170 360 176 340 Q183 320 178 295"
+                    stroke="#c08a5c" stroke-width="6" fill="none" stroke-linecap="round" opacity="0.55"/>
+              <!-- Bark detail -->
+              <path d="M180 360 q3 -3 6 -1" stroke="#5e3315" stroke-width="2" fill="none" opacity="0.6"/>
+              <path d="M184 320 q3 -3 6 -1" stroke="#5e3315" stroke-width="2" fill="none" opacity="0.6"/>
+              <!-- Branch hint -->
+              <path d="M184 290 Q160 270 138 268" stroke="url(#i-trunk)" stroke-width="11" fill="none" stroke-linecap="round"/>
+            </g>
+            <!-- Foliage -->
+            <g class="i-foliage-3">
+              <!-- Drop shadow -->
+              <ellipse cx="195" cy="200" rx="120" ry="105" fill="#1f7c1f" opacity="0.20"/>
+              <!-- Main bumpy canopy -->
+              <path d="
+                M95 215
+                Q72 165 102 130
+                Q90 80 145 78
+                Q170 45 215 70
+                Q260 60 285 100
+                Q320 115 305 165
+                Q335 195 305 230
+                Q310 275 255 280
+                Q220 305 180 290
+                Q130 295 105 270
+                Q78 255 95 215 Z"
+                fill="url(#i-foliage)" stroke="#287a26" stroke-width="3" stroke-linejoin="round"/>
+              <!-- Highlights -->
+              <ellipse cx="155" cy="115" rx="22" ry="10" fill="#cbf2b3" opacity="0.7" transform="rotate(-15 155 115)"/>
+              <ellipse cx="220" cy="100" rx="16" ry="7"  fill="#cbf2b3" opacity="0.55" transform="rotate(20 220 100)"/>
+              <ellipse cx="280" cy="170" rx="12" ry="5"  fill="#cbf2b3" opacity="0.45" transform="rotate(-10 280 170)"/>
+              <!-- Detail leaves -->
+              <circle cx="140" cy="195" r="3"   fill="#1f7c1f" opacity="0.5"/>
+              <circle cx="240" cy="180" r="3"   fill="#1f7c1f" opacity="0.5"/>
+              <circle cx="200" cy="240" r="2.5" fill="#1f7c1f" opacity="0.5"/>
+              <circle cx="280" cy="220" r="2.5" fill="#1f7c1f" opacity="0.5"/>
+              <circle cx="115" cy="240" r="2"   fill="#1f7c1f" opacity="0.5"/>
+            </g>
+            <!-- Background bushes -->
+            <g opacity="0.7">
+              <ellipse cx="50"  cy="385" rx="22" ry="13" fill="#5cba3e"/>
+              <ellipse cx="350" cy="388" rx="20" ry="11" fill="#5cba3e"/>
+            </g>
+            <!-- Tiny grass flowers -->
+            <circle cx="80"  cy="415" r="2"   fill="#fff"/>
+            <circle cx="320" cy="420" r="2"   fill="#fff"/>
+            <circle cx="100" cy="435" r="1.8" fill="#ffd305"/>
+            <circle cx="290" cy="438" r="1.8" fill="#ffd305"/>
+          </g>
+
+          <!-- ===== Stage 4 — Bloom (full + flowers + glow) ===== -->
+          <g class="i-stage i-stage-4">
+            <!-- Glow halo behind tree -->
+            <circle class="i-bloom-halo" cx="200" cy="195" r="180" fill="url(#i-bloomGlow)"/>
+            <!-- Grass ground -->
+            <path d="M0 380 Q60 360 130 375 Q200 365 280 380 Q350 370 400 385 L400 480 L0 480 Z" fill="url(#i-grass)"/>
+            <g class="i-grass-tufts" stroke="#2f8a25" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.7">
+              <path d="M40 410 L42 400 L44 410 L46 398 L48 410"/>
+              <path d="M340 408 L342 398 L344 408 L346 396 L348 408"/>
+              <path d="M70 430 L72 420 L74 430"/>
+              <path d="M310 432 L312 422 L314 432"/>
+            </g>
+            <ellipse cx="200" cy="425" rx="100" ry="12" fill="#000" opacity="0.18"/>
+            <g class="i-trunk-4">
+              <path d="M188 425 L182 380 Q176 360 182 340 Q190 320 184 290 Q178 260 192 235"
+                    stroke="url(#i-trunk)" stroke-width="34" fill="none" stroke-linecap="round"/>
+              <path d="M178 420 L174 380 Q170 360 176 340 Q183 320 178 295"
+                    stroke="#c08a5c" stroke-width="6" fill="none" stroke-linecap="round" opacity="0.55"/>
+              <path d="M180 360 q3 -3 6 -1" stroke="#5e3315" stroke-width="2" fill="none" opacity="0.6"/>
+              <path d="M184 320 q3 -3 6 -1" stroke="#5e3315" stroke-width="2" fill="none" opacity="0.6"/>
+              <path d="M184 290 Q160 270 138 268" stroke="url(#i-trunk)" stroke-width="11" fill="none" stroke-linecap="round"/>
+            </g>
+            <!-- Lush bloom foliage -->
+            <g class="i-foliage-4">
+              <ellipse cx="195" cy="195" rx="135" ry="115" fill="#1f7c1f" opacity="0.22"/>
+              <path d="
+                M88 220
+                Q60 165 95 125
+                Q82 75 145 72
+                Q170 38 218 65
+                Q265 55 290 95
+                Q330 110 312 165
+                Q345 200 312 235
+                Q320 280 258 285
+                Q220 310 178 295
+                Q128 300 100 275
+                Q70 260 88 220 Z"
+                fill="url(#i-foliage)" stroke="#287a26" stroke-width="3" stroke-linejoin="round"/>
+              <ellipse cx="155" cy="105" rx="24" ry="11" fill="#cbf2b3" opacity="0.75" transform="rotate(-15 155 105)"/>
+              <ellipse cx="220" cy="90"  rx="18" ry="8"  fill="#cbf2b3" opacity="0.6"  transform="rotate(20 220 90)"/>
+            </g>
+            <!-- Flowers covering canopy -->
+            <g class="i-blooms">
+              <g transform="translate(140 165)"><circle cx="-5" cy="0" r="3.8" fill="#ffe3ec"/><circle cx="5" cy="0" r="3.8" fill="#ffe3ec"/><circle cx="0" cy="-5" r="3.8" fill="#ffe3ec"/><circle cx="0" cy="5" r="3.8" fill="#ffe3ec"/><circle r="2.6" fill="#ffd305"/></g>
+              <g transform="translate(180 120)"><circle cx="-4" cy="0" r="3.2" fill="#fff"/><circle cx="4" cy="0" r="3.2" fill="#fff"/><circle cx="0" cy="-4" r="3.2" fill="#fff"/><circle cx="0" cy="4" r="3.2" fill="#fff"/><circle r="2.2" fill="#ffd305"/></g>
+              <g transform="translate(228 150)"><circle cx="-5" cy="0" r="3.8" fill="#ffd0e2"/><circle cx="5" cy="0" r="3.8" fill="#ffd0e2"/><circle cx="0" cy="-5" r="3.8" fill="#ffd0e2"/><circle cx="0" cy="5" r="3.8" fill="#ffd0e2"/><circle r="2.6" fill="#ff89b8"/></g>
+              <g transform="translate(160 215)"><circle cx="-4" cy="0" r="3.2" fill="#fff"/><circle cx="4" cy="0" r="3.2" fill="#fff"/><circle cx="0" cy="-4" r="3.2" fill="#fff"/><circle cx="0" cy="4" r="3.2" fill="#fff"/><circle r="2" fill="#ffd305"/></g>
+              <g transform="translate(248 215)"><circle cx="-4" cy="0" r="3.2" fill="#ffe3ec"/><circle cx="4" cy="0" r="3.2" fill="#ffe3ec"/><circle cx="0" cy="-4" r="3.2" fill="#ffe3ec"/><circle cx="0" cy="4" r="3.2" fill="#ffe3ec"/><circle r="2" fill="#ff89b8"/></g>
+              <g transform="translate(110 195)"><circle cx="-3" cy="0" r="2.6" fill="#fff"/><circle cx="3" cy="0" r="2.6" fill="#fff"/><circle cx="0" cy="-3" r="2.6" fill="#fff"/><circle cx="0" cy="3" r="2.6" fill="#fff"/><circle r="1.7" fill="#ffd305"/></g>
+              <g transform="translate(290 195)"><circle cx="-3" cy="0" r="2.6" fill="#ffd0e2"/><circle cx="3" cy="0" r="2.6" fill="#ffd0e2"/><circle cx="0" cy="-3" r="2.6" fill="#ffd0e2"/><circle cx="0" cy="3" r="2.6" fill="#ffd0e2"/><circle r="1.7" fill="#ff89b8"/></g>
+              <g transform="translate(200 90)"><circle cx="-3" cy="0" r="2.6" fill="#fff"/><circle cx="3" cy="0" r="2.6" fill="#fff"/><circle cx="0" cy="-3" r="2.6" fill="#fff"/><circle cx="0" cy="3" r="2.6" fill="#fff"/><circle r="1.7" fill="#ffd305"/></g>
+              <g transform="translate(125 145)"><circle cx="-3" cy="0" r="2.4" fill="#ffe3ec"/><circle cx="3" cy="0" r="2.4" fill="#ffe3ec"/><circle cx="0" cy="-3" r="2.4" fill="#ffe3ec"/><circle cx="0" cy="3" r="2.4" fill="#ffe3ec"/><circle r="1.6" fill="#ff89b8"/></g>
+              <g transform="translate(265 110)"><circle cx="-3" cy="0" r="2.4" fill="#ffd0e2"/><circle cx="3" cy="0" r="2.4" fill="#ffd0e2"/><circle cx="0" cy="-3" r="2.4" fill="#ffd0e2"/><circle cx="0" cy="3" r="2.4" fill="#ffd0e2"/><circle r="1.6" fill="#ff89b8"/></g>
+            </g>
+            <!-- Falling petals -->
+            <g class="i-petals">
+              <ellipse class="i-petal p1" cx="100" cy="320" rx="3"   ry="2"   fill="#ffd0e2" transform="rotate(20 100 320)"/>
+              <ellipse class="i-petal p2" cx="310" cy="280" rx="2.5" ry="1.6" fill="#ffe3ec" transform="rotate(-30 310 280)"/>
+              <ellipse class="i-petal p3" cx="80"  cy="370" rx="2.5" ry="1.6" fill="#ffd0e2" transform="rotate(45 80 370)"/>
+              <ellipse class="i-petal p4" cx="340" cy="350" rx="2"   ry="1.4" fill="#ffe3ec" transform="rotate(60 340 350)"/>
+            </g>
+            <!-- Butterfly -->
+            <g class="i-butterfly" transform="translate(310 200)">
+              <ellipse cx="-5" cy="-2" rx="6" ry="4" fill="#ff9ec5" transform="rotate(-20 -5 -2)"/>
+              <ellipse cx="5"  cy="-2" rx="6" ry="4" fill="#ff9ec5" transform="rotate(20 5 -2)"/>
+              <ellipse cx="-4" cy="2"  rx="4" ry="3" fill="#ffd0e2" transform="rotate(20 -4 2)"/>
+              <ellipse cx="4"  cy="2"  rx="4" ry="3" fill="#ffd0e2" transform="rotate(-20 4 2)"/>
+              <ellipse cx="0"  cy="0"  rx="1.2" ry="4" fill="#5a3416"/>
+            </g>
+            <!-- Sparkles -->
+            <g class="i-sparkles">
+              <g class="i-spark s1" transform="translate(140 100)"><path d="M0 -5 L1 -1 L5 0 L1 1 L0 5 L-1 1 L-5 0 L-1 -1 Z" fill="#ffd305"/></g>
+              <g class="i-spark s2" transform="translate(295 110)"><path d="M0 -4 L0.8 -0.8 L4 0 L0.8 0.8 L0 4 L-0.8 0.8 L-4 0 L-0.8 -0.8 Z" fill="#fff"/></g>
+              <g class="i-spark s3" transform="translate(310 245)"><path d="M0 -3 L0.6 -0.6 L3 0 L0.6 0.6 L0 3 L-0.6 0.6 L-3 0 L-0.6 -0.6 Z" fill="#00aec7"/></g>
+            </g>
+            <!-- Grass flowers -->
+            <g transform="translate(80 415)"><circle r="2.3" fill="#fff"/><circle r="1.1" fill="#ffd305"/></g>
+            <g transform="translate(105 432)"><circle r="2.2" fill="#ffd0e2"/><circle r="1" fill="#ff89b8"/></g>
+            <g transform="translate(320 420)"><circle r="2.3" fill="#fff"/><circle r="1.1" fill="#ffd305"/></g>
+            <g transform="translate(345 432)"><circle r="2" fill="#ffd0e2"/></g>
+          </g>
+        </svg>
+
+        <!-- Legacy SVG fallback (fully hidden, kept only to avoid breaking refs) -->
         <div class="tree-svg-fallback" hidden>
         <!-- Sky background -->
         <div class="tree-sky"></div>
