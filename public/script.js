@@ -12,10 +12,10 @@
   const dropsEl = document.getElementById('drops');
   const stageBadges = document.querySelectorAll('.stage-badge');
 
-  const TOTAL = 10;
+  let TOTAL = 10;
+  const totalEl = document.querySelector('.stat-total');
 
-  function stageFromCount(count) {
-    const pct = (count / TOTAL) * 100;
+  function stageFromPercent(pct) {
     if (pct <= 0) return 0;
     if (pct < 15) return 1;
     if (pct < 50) return 2;
@@ -33,9 +33,10 @@
   }
 
   function applyStats(count, percent) {
-    const stage = stageFromCount(count);
+    const stage = stageFromPercent(percent);
     treeStage.dataset.stage = stage;
     setBadge(stage);
+    if (totalEl) totalEl.textContent = '/' + TOTAL;
 
     // animate count (safe: always sets final value, animates in background)
     const start = parseInt(countEl.textContent, 10) || 0;
@@ -67,6 +68,7 @@
     try {
       const r = await fetch('/api/stats');
       const data = await r.json();
+      TOTAL = data.total || TOTAL;
       applyStats(data.count, data.percent);
     } catch (e) {
       console.error(e);
@@ -131,8 +133,8 @@
       setMsg(`✅ ลงทะเบียนสำเร็จ! ขอบคุณ ${data.entry.name} 💚`, 'success');
       form.reset();
       spawnDrops();
-      const percent = Math.min(100, Math.round((data.count / data.total) * 100));
-      applyStats(data.count, percent);
+      TOTAL = data.total || TOTAL;
+      applyStats(data.count, data.percent);
       // celebrate small confetti when crossing milestones
       if ([3, 5, 7, 10].includes(data.count)) {
         celebrate();

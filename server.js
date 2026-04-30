@@ -6,23 +6,43 @@ const app = express();
 const PORT = process.env.PORT || 4242;
 const DATA_FILE = path.join(__dirname, 'registrations.json');
 const ADMIN_KEY = process.env.ADMIN_KEY || 'feflddb2026';
-const TOTAL_EMPLOYEES = 10;
+const DEFAULT_TOTAL = 10;
+const DEFAULT_OFFSET = 0;
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 function loadData() {
+  const fallback = {
+    registrations: [],
+    winners: [],
+    settings: { baseOffset: DEFAULT_OFFSET, totalTarget: DEFAULT_TOTAL },
+  };
   try {
-    if (!fs.existsSync(DATA_FILE)) return { registrations: [], winners: [] };
+    if (!fs.existsSync(DATA_FILE)) return fallback;
     const raw = fs.readFileSync(DATA_FILE, 'utf-8');
     const parsed = JSON.parse(raw || '{}');
+    const settings = parsed.settings && typeof parsed.settings === 'object' ? parsed.settings : {};
     return {
       registrations: Array.isArray(parsed.registrations) ? parsed.registrations : [],
       winners: Array.isArray(parsed.winners) ? parsed.winners : [],
+      settings: {
+        baseOffset: Number.isFinite(settings.baseOffset) ? settings.baseOffset : DEFAULT_OFFSET,
+        totalTarget: Number.isFinite(settings.totalTarget) && settings.totalTarget > 0
+          ? settings.totalTarget : DEFAULT_TOTAL,
+      },
     };
   } catch (e) {
-    return { registrations: [], winners: [] };
+    return fallback;
   }
+}
+
+function buildStats(data) {
+  const registrationCount = data.registrations.length;
+  const { baseOffset, totalTarget } = data.settings;
+  const displayCount = registrationCount + baseOffset;
+  const percent = Math.min(100, Math.round((displayCount / totalTarget) * 100));
+  return { count: displayCount, registrationCount, baseOffset, total: totalTarget, percent };
 }
 
 function saveData(data) {
@@ -70,21 +90,17 @@ app.post('/api/register', (req, res) => {
   data.registrations.push(entry);
   saveData(data);
 
+  const stats = buildStats(data);
   res.json({
     ok: true,
-    count: data.registrations.length,
-    total: TOTAL_EMPLOYEES,
+    ...stats,
     entry: { id: entry.id, name: entry.name },
   });
 });
 
 app.get('/api/stats', (req, res) => {
   const data = loadData();
-  res.json({
-    count: data.registrations.length,
-    total: TOTAL_EMPLOYEES,
-    percent: Math.min(100, Math.round((data.registrations.length / TOTAL_EMPLOYEES) * 100)),
-  });
+  res.json(buildStats(data));
 });
 
 app.get('/api/recent', (req, res) => {
@@ -98,12 +114,32 @@ app.get('/api/recent', (req, res) => {
 
 app.get('/api/admin/registrations', requireAdmin, (req, res) => {
   const data = loadData();
+  const stats = buildStats(data);
   res.json({
-    count: data.registrations.length,
-    total: TOTAL_EMPLOYEES,
+    ...stats,
     registrations: data.registrations.slice().reverse(),
     winners: data.winners,
+    settings: data.settings,
   });
+});
+
+app.get('/api/admin/settings', requireAdmin, (req, res) => {
+  const data = loadData();
+  res.json({ settings: data.settings, ...buildStats(data) });
+});
+
+app.post('/api/admin/settings', requireAdmin, (req, res) => {
+  const data = loadData();
+  const baseOffset = parseInt(req.body.baseOffset, 10);
+  const totalTarget = parseInt(req.body.totalTarget, 10);
+  if (Number.isFinite(baseOffset) && baseOffset >= 0) {
+    data.settings.baseOffset = baseOffset;
+  }
+  if (Number.isFinite(totalTarget) && totalTarget > 0) {
+    data.settings.totalTarget = totalTarget;
+  }
+  saveData(data);
+  res.json({ ok: true, settings: data.settings, ...buildStats(data) });
 });
 
 app.delete('/api/admin/registrations/:id', requireAdmin, (req, res) => {

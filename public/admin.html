@@ -59,12 +59,41 @@
     </nav>
   </div>
 
+  <!-- Settings panel -->
+  <section class="panel" id="settings-panel">
+    <div class="panel-header">
+      <h2>⚙️ ตั้งค่าการนับ</h2>
+      <div style="font-size:12px;color:var(--ink-mute)">
+        ยอดที่แสดงบนเว็บ = <strong>ยอดเริ่มต้น + คนลงทะเบียนจริง</strong>
+      </div>
+    </div>
+    <div class="settings-grid">
+      <div class="settings-field">
+        <label for="set-offset">🌱 ยอดเริ่มต้น (Base Offset)</label>
+        <input type="number" id="set-offset" min="0" step="1" value="0"/>
+        <small>เริ่มนับจากเลขนี้ก่อนมีคนลงทะเบียนจริง</small>
+      </div>
+      <div class="settings-field">
+        <label for="set-total">🎯 เป้าหมายรวม (Total Target)</label>
+        <input type="number" id="set-total" min="1" step="1" value="10"/>
+        <small>เป้าหมายที่ต้นไม้จะเบ่งบาน 100%</small>
+      </div>
+      <div class="settings-summary">
+        <div class="ss-row"><span>ยอดเริ่มต้น</span><strong id="ss-offset">0</strong></div>
+        <div class="ss-row"><span>+ คนลงทะเบียนจริง</span><strong id="ss-real">0</strong></div>
+        <div class="ss-row ss-total"><span>= ยอดที่แสดง</span><strong id="ss-display">0</strong> / <span id="ss-target">10</span></div>
+        <button class="btn btn-primary" id="save-settings-btn" style="margin-top:14px">💾 บันทึกการตั้งค่า</button>
+        <span class="form-msg" id="settings-msg"></span>
+      </div>
+    </div>
+  </section>
+
   <!-- KPI cards -->
   <div class="kpi-grid">
     <div class="kpi">
-      <div class="label">ลงทะเบียนแล้ว</div>
+      <div class="label">ยอดที่แสดง</div>
       <div class="value" id="kpi-count">0</div>
-      <div class="sub">จากทั้งหมด <strong id="kpi-total">10</strong> คน</div>
+      <div class="sub">จากเป้าหมาย <strong id="kpi-total">10</strong> คน · จริง <strong id="kpi-real">0</strong></div>
     </div>
     <div class="kpi kpi-yellow">
       <div class="label">เปอร์เซ็นต์</div>
@@ -115,7 +144,7 @@
 
 <script>
 const KEY_STORAGE = 'feflddb-admin-key';
-const TOTAL = 10;
+let TOTAL = 10;
 
 const $ = (id) => document.getElementById(id);
 const overlay = $('login-overlay');
@@ -183,8 +212,7 @@ async function refresh() {
   } catch (e) {}
 }
 
-function stageInfo(count) {
-  const pct = (count / TOTAL) * 100;
+function stageInfo(pct) {
   if (pct < 1) return { emoji: '🌱', label: 'รอรดน้ำ' };
   if (pct < 15) return { emoji: '🌱', label: 'เมล็ด' };
   if (pct < 50) return { emoji: '🌿', label: 'ต้นกล้า' };
@@ -194,14 +222,29 @@ function stageInfo(count) {
 
 function render(data) {
   allRegistrations = data.registrations || [];
-  const count = data.count || 0;
-  const percent = Math.min(100, Math.round((count / TOTAL) * 100));
+  const displayCount = data.count || 0;
+  const realCount = data.registrationCount || allRegistrations.length;
+  const baseOffset = data.baseOffset || (data.settings && data.settings.baseOffset) || 0;
+  TOTAL = data.total || TOTAL;
+  const percent = data.percent != null ? data.percent : Math.min(100, Math.round((displayCount / TOTAL) * 100));
 
-  $('kpi-count').textContent = count;
+  $('kpi-count').textContent = displayCount;
   $('kpi-total').textContent = TOTAL;
+  $('kpi-real').textContent = realCount;
   $('kpi-percent').textContent = percent;
 
-  const s = stageInfo(count);
+  // Settings panel summary
+  $('ss-offset').textContent = baseOffset;
+  $('ss-real').textContent = realCount;
+  $('ss-display').textContent = displayCount;
+  $('ss-target').textContent = TOTAL;
+  // Only update inputs if user isn't currently editing
+  const offsetInput = $('set-offset');
+  const totalInput = $('set-total');
+  if (document.activeElement !== offsetInput) offsetInput.value = baseOffset;
+  if (document.activeElement !== totalInput) totalInput.value = TOTAL;
+
+  const s = stageInfo(percent);
   $('kpi-stage-emoji').textContent = s.emoji;
   $('kpi-stage-label').textContent = s.label;
 
@@ -273,6 +316,30 @@ $('search-input').addEventListener('input', applyFilter);
 $('refresh-btn').addEventListener('click', refresh);
 $('export-btn').addEventListener('click', () => {
   window.location.href = '/api/admin/export?key=' + encodeURIComponent(currentKey);
+});
+
+$('save-settings-btn').addEventListener('click', async () => {
+  const baseOffset = Math.max(0, parseInt($('set-offset').value, 10) || 0);
+  const totalTarget = Math.max(1, parseInt($('set-total').value, 10) || 1);
+  const msg = $('settings-msg');
+  msg.textContent = 'กำลังบันทึก...';
+  msg.className = 'form-msg';
+  try {
+    const r = await fetch('/api/admin/settings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-admin-key': currentKey },
+      body: JSON.stringify({ baseOffset, totalTarget }),
+    });
+    if (!r.ok) throw new Error('failed');
+    const data = await r.json();
+    msg.textContent = '✅ บันทึกแล้ว — ยอดที่แสดง ' + data.count + ' / ' + data.total;
+    msg.className = 'form-msg success';
+    refresh();
+    setTimeout(() => { msg.textContent = ''; msg.className = 'form-msg'; }, 3500);
+  } catch (e) {
+    msg.textContent = '❌ บันทึกไม่สำเร็จ';
+    msg.className = 'form-msg error';
+  }
 });
 
 // auto refresh every 15s
