@@ -147,13 +147,15 @@ a:hover { text-decoration: underline; }
 .hero-eyebrow .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--ci-cyan); }
 
 .hero-title {
-  font-size: 52px;
-  line-height: 1.05;
+  font-size: 46px;
+  line-height: 1.1;
   font-weight: 800;
   margin: 18px 0 16px;
   letter-spacing: -0.5px;
 }
-.title-accent {
+.title-line {
+  display: block;
+  white-space: nowrap;
   background: linear-gradient(120deg, var(--ci-cyan) 0%, #38d6ee 100%);
   -webkit-background-clip: text;
   background-clip: text;
@@ -164,6 +166,14 @@ a:hover { text-decoration: underline; }
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+}
+
+@media (max-width: 1100px) {
+  .hero-title { font-size: 40px; }
+}
+@media (max-width: 720px) {
+  .hero-title { font-size: 32px; }
+  .title-line { white-space: normal; }
 }
 .heart { display: inline-block; animation: pulse 2s ease-in-out infinite; }
 @keyframes pulse {
@@ -206,7 +216,8 @@ a:hover { text-decoration: underline; }
 }
 .field .optional { color: var(--ink-mute); font-weight: 400; }
 
-.field input {
+.field input,
+.field select {
   width: 100%;
   padding: 12px 14px;
   font: inherit;
@@ -216,11 +227,23 @@ a:hover { text-decoration: underline; }
   background: #fbfdfd;
   transition: all .2s ease;
   color: var(--ink);
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
 }
-.field input:focus {
+.field select {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14'><path d='M3 5l4 4 4-4' stroke='%2300aec7' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 14px 14px;
+  padding-right: 38px;
+  cursor: pointer;
+}
+.field input:focus,
+.field select:focus {
   outline: none;
   border-color: var(--ci-cyan);
-  background: white;
+  background-color: white;
   box-shadow: 0 0 0 4px rgba(0,174,199,0.12);
 }
 
@@ -303,7 +326,83 @@ a:hover { text-decoration: underline; }
   z-index: 1;
 }
 
-/* ===== Cute tree stage transitions ===== */
+/* ===== Image-based tree stages (replaces SVG when .tree-stage-img) ===== */
+.tree-stage-img {
+  background: linear-gradient(180deg, #cdeaff 0%, #e6f6ff 60%, #ffffff 100%);
+}
+.tree-stage-img .tree-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center bottom;
+  opacity: 0;
+  transition: opacity 1.2s ease;
+  z-index: 2;
+  pointer-events: none;
+}
+/* Default: stage 0 / 1 → seed */
+.tree-stage-img .tree-img-1 { opacity: 1; }
+.tree-stage-img[data-stage="0"] .tree-img-1 { opacity: 1; }
+.tree-stage-img[data-stage="0"] .tree-img-2,
+.tree-stage-img[data-stage="0"] .tree-img-3,
+.tree-stage-img[data-stage="0"] .tree-img-4 { opacity: 0; }
+
+.tree-stage-img[data-stage="1"] .tree-img-1 { opacity: 1; }
+.tree-stage-img[data-stage="1"] .tree-img-2,
+.tree-stage-img[data-stage="1"] .tree-img-3,
+.tree-stage-img[data-stage="1"] .tree-img-4 { opacity: 0; }
+
+.tree-stage-img[data-stage="2"] .tree-img-1 { opacity: 0; }
+.tree-stage-img[data-stage="2"] .tree-img-2 { opacity: 1; }
+.tree-stage-img[data-stage="2"] .tree-img-3,
+.tree-stage-img[data-stage="2"] .tree-img-4 { opacity: 0; }
+
+.tree-stage-img[data-stage="3"] .tree-img-1,
+.tree-stage-img[data-stage="3"] .tree-img-2 { opacity: 0; }
+.tree-stage-img[data-stage="3"] .tree-img-3 { opacity: 1; }
+.tree-stage-img[data-stage="3"] .tree-img-4 { opacity: 0; }
+
+.tree-stage-img[data-stage="4"] .tree-img-1,
+.tree-stage-img[data-stage="4"] .tree-img-2,
+.tree-stage-img[data-stage="4"] .tree-img-3 { opacity: 0; }
+.tree-stage-img[data-stage="4"] .tree-img-4 { opacity: 1; }
+
+/* Bloom golden glow */
+.tree-stage-img .tree-bloom-glow {
+  position: absolute; inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 1s ease 0.3s;
+  background:
+    radial-gradient(circle at 50% 35%, rgba(255, 235, 100, 0.30) 0%, transparent 45%),
+    radial-gradient(circle at 30% 30%, rgba(255, 255, 220, 0.20) 0%, transparent 35%);
+}
+.tree-stage-img[data-stage="4"] .tree-bloom-glow {
+  opacity: 1;
+  animation: bloomGlowPulse 4s ease-in-out infinite;
+}
+@keyframes bloomGlowPulse {
+  0%, 100% { opacity: 0.7; }
+  50%      { opacity: 1; }
+}
+
+/* Subtle scale-in for newer stages */
+.tree-stage-img .tree-img-2,
+.tree-stage-img .tree-img-3,
+.tree-stage-img .tree-img-4 {
+  transform: scale(0.96);
+  transition: opacity 1.2s ease, transform 1.4s cubic-bezier(.25,1.4,.45,1);
+}
+.tree-stage-img[data-stage="2"] .tree-img-2,
+.tree-stage-img[data-stage="3"] .tree-img-3,
+.tree-stage-img[data-stage="4"] .tree-img-4 {
+  transform: scale(1);
+}
+
+/* ===== Legacy SVG cute-tree (kept for fallback only) ===== */
 .cute-tree { filter: drop-shadow(0 8px 20px rgba(58, 175, 122, 0.20)); }
 .cute-tree .foliage-group,
 .cute-tree .trunk-group,

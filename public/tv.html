@@ -399,7 +399,7 @@
   <main class="tv-main">
     <!-- Tree side -->
     <div class="tv-tree-wrap">
-      <div class="tree-stage tv-tree-stage" data-stage="0">
+      <div class="tree-stage tv-tree-stage tree-stage-img" data-stage="0">
         <!-- Stage tag -->
         <div class="tv-stage-tag">
           <div class="emoji" id="tv-stage-emoji">🌱</div>
@@ -409,6 +409,15 @@
           </div>
         </div>
 
+        <!-- Image-based stage (cross-faded) -->
+        <img class="tree-img tree-img-1" src="/tree-stage1-seed.png"   alt="" />
+        <img class="tree-img tree-img-2" src="/tree-stage2-sprout.png" alt="" />
+        <img class="tree-img tree-img-3" src="/tree-stage3-tree.png"   alt="" />
+        <img class="tree-img tree-img-4" src="/tree-stage4-bloom.png"  alt="" />
+        <div class="tree-bloom-glow" aria-hidden="true"></div>
+
+        <!-- Legacy SVG fallback (hidden) -->
+        <div class="tree-svg-fallback" hidden>
         <!-- Cute tree SVG (same as index) -->
         <svg class="tree-svg cute-tree" viewBox="0 0 400 480" aria-hidden="true">
           <defs>
@@ -557,6 +566,7 @@
             <g class="sparkle" transform="translate(310 245)"><path d="M0 -3 L0.6 -0.6 L3 0 L0.6 0.6 L0 3 L-0.6 0.6 L-3 0 L-0.6 -0.6 Z" fill="#00aec7"/></g>
           </g>
         </svg>
+        </div><!-- /tree-svg-fallback -->
 
         <div class="tv-drops" id="tv-drops" aria-hidden="true"></div>
       </div>

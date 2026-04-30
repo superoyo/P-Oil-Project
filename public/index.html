@@ -35,7 +35,7 @@
       <span class="dot"></span> EARTH DAY · 30 APRIL
     </div>
     <h1 class="hero-title">
-      FEFLDDB <span class="title-accent">Group Town Hall</span><br/>
+      <span class="title-line">FEFLDDB Group Town Hall</span>
       <span class="title-hash">#EarthDay</span> <span class="heart">💚</span>
     </h1>
     <p class="hero-desc">
@@ -85,7 +85,16 @@
         <p>ยิ่งคนลงทะเบียนเยอะ ต้นไม้ยิ่งเติบโต</p>
       </div>
 
-      <div class="tree-stage">
+      <div class="tree-stage tree-stage-img">
+        <!-- Image-based stage (cross-faded) -->
+        <img class="tree-img tree-img-1" src="/tree-stage1-seed.png"   alt="" />
+        <img class="tree-img tree-img-2" src="/tree-stage2-sprout.png" alt="" />
+        <img class="tree-img tree-img-3" src="/tree-stage3-tree.png"   alt="" />
+        <img class="tree-img tree-img-4" src="/tree-stage4-bloom.png"  alt="" />
+        <div class="tree-bloom-glow" aria-hidden="true"></div>
+
+        <!-- Legacy SVG fallback (hidden when image stage is active) -->
+        <div class="tree-svg-fallback" hidden>
         <!-- Sky background -->
         <div class="tree-sky"></div>
         <!-- Cute Tree SVG -->
@@ -279,6 +288,7 @@
             <g class="sparkle" transform="translate(310 245)"><path d="M0 -3 L0.6 -0.6 L3 0 L0.6 0.6 L0 3 L-0.6 0.6 L-3 0 L-0.6 -0.6 Z" fill="#00aec7"/></g>
           </g>
         </svg>
+        </div><!-- /tree-svg-fallback -->
 
         <!-- Water drops animation slot -->
         <div class="drops" id="drops" aria-hidden="true"></div>
