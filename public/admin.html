@@ -63,12 +63,12 @@
     <div class="kpi">
       <div class="label">ลงทะเบียนแล้ว</div>
       <div class="value" id="kpi-count">0</div>
-      <div class="sub">จากทั้งหมด <strong id="kpi-total">200</strong> คน</div>
+      <div class="sub">จากทั้งหมด <strong id="kpi-total">10</strong> คน</div>
     </div>
     <div class="kpi kpi-yellow">
       <div class="label">เปอร์เซ็นต์</div>
       <div class="value"><span id="kpi-percent">0</span>%</div>
-      <div class="sub">ของพนักงาน FEFLDDB</div>
+      <div class="sub">ของเป้าหมาย</div>
     </div>
     <div class="kpi kpi-green">
       <div class="label">ระยะการเติบโต</div>
@@ -114,7 +114,7 @@
 
 <script>
 const KEY_STORAGE = 'feflddb-admin-key';
-const TOTAL = 200;
+const TOTAL = 10;
 
 const $ = (id) => document.getElementById(id);
 const overlay = $('login-overlay');

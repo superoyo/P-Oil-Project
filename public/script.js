@@ -12,7 +12,7 @@
   const dropsEl = document.getElementById('drops');
   const stageBadges = document.querySelectorAll('.stage-badge');
 
-  const TOTAL = 200;
+  const TOTAL = 10;
 
   function stageFromCount(count) {
     const pct = (count / TOTAL) * 100;
@@ -134,7 +134,7 @@
       const percent = Math.min(100, Math.round((data.count / data.total) * 100));
       applyStats(data.count, percent);
       // celebrate small confetti when crossing milestones
-      if ([10, 50, 100, 150, 200].includes(data.count)) {
+      if ([3, 5, 7, 10].includes(data.count)) {
         celebrate();
       }
       setTimeout(() => { submitBtn.disabled = false; }, 1200);

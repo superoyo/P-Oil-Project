@@ -6,7 +6,7 @@ const app = express();
 const PORT = process.env.PORT || 4242;
 const DATA_FILE = path.join(__dirname, 'registrations.json');
 const ADMIN_KEY = process.env.ADMIN_KEY || 'feflddb2026';
-const TOTAL_EMPLOYEES = 200;
+const TOTAL_EMPLOYEES = 10;
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
